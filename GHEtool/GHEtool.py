@@ -179,6 +179,10 @@ class Borefield:
         self.alpha: float = 0.  # ground diffusivity (m2/s)
         self.number_of_boreholes: int = 0  # number of total boreholes #
 
+        self.Tf_H: float = 0
+        self.Tf_C: float = 16
+        self.Tf: float = 0.
+
         # initiate fluid parameters
         self.k_f: float = 0.  # Thermal conductivity W/mK
         self.mfr: float = 0.  # Mass flow rate kg/s
@@ -1777,9 +1781,7 @@ class Borefield:
 
         # get all the solutions
         lengths = list(results.keys())
-        lengths.sort()
-        # reverse for decending order
-        lengths[::-1]
+        lengths.sort(reverse=True)
 
         # cut to right length
         lengths = lengths[0:nb_of_options]
