@@ -145,10 +145,8 @@ def test_Tg(borefield):
 
 
 def test_calculate_Rb(borefield):
-    try:
+    with pytest.raises(ValueError):
         borefield.calculate_Rb()
-    except ValueError:
-        assert True
 
 
 def test_to_small_field(borefield):
@@ -157,54 +155,50 @@ def test_to_small_field(borefield):
 
 
 def test_too_much_sizing_methods(borefield):
-    try:
+    with pytest.raises(ValueError):
         borefield.sizing_setup(L2_sizing=True, L3_sizing=True)
-    except ValueError:
-        assert True
 
 
 def test_size_L3(borefield):
-    borefield.size(L3_sizing=True)
+    assert np.isclose(borefield.size(L3_sizing=True), 91.99202686026176)
 
 
 def test_size_L4(hourly_borefield):
-    hourly_borefield.size(L4_sizing=True)
+    assert np.isclose(hourly_borefield.size(L4_sizing=True), 257.22412362020594)
 
 
 def test_cooling_dom(borefield_cooling_dom):
-    borefield_cooling_dom.size()
+    assert np.isclose(borefield_cooling_dom.size(), 110.14491704070309)
 
 
 def test_sizing_different_quadrants(borefield):
-    borefield.size(quadrant_sizing=1)
-    borefield.size(quadrant_sizing=2)
-    borefield.size(quadrant_sizing=3)
-    borefield.size(quadrant_sizing=4)
-    borefield.size(quadrant_sizing=1, L3_sizing=True)
+    assert np.isclose(borefield.size(quadrant_sizing=1), 91.94137647834752)
+    assert np.isclose(borefield.size(quadrant_sizing=2), 61.209623787664945)
+    assert np.isclose(borefield.size(quadrant_sizing=3), 41.274037653246715)
+    assert np.isclose(borefield.size(quadrant_sizing=4), 62.22270240809501)
+    assert np.isclose(borefield.size(quadrant_sizing=1, L3_sizing=True), 91.99185578488837)
 
 
 def test_convergence(borefield_cooling_dom):
-    try:
-        borefield_cooling_dom.set_peak_heating(np.array(peakHeating)*15)
+    borefield_cooling_dom.set_peak_heating(np.array(peakHeating)*15)
+    with pytest.raises(RuntimeError):
         borefield_cooling_dom.size()
-    except RuntimeError:
-        assert True
 
 
 def test_quadrant_4(borefield):
     borefield.set_peak_heating(np.array(peakHeating)*8)
-    borefield.size()
+    assert np.isclose(borefield.size(), 324.5430162973827)
 
 
 def test_sizing_L3(borefield):
     borefield.set_peak_heating(np.array(peakHeating)*8)
-    borefield.size(L3_sizing=True)
+    assert np.isclose(borefield.size(L3_sizing=True), 322.9371682851255)
 
 
 def test_sizing_L32(borefield_cooling_dom):
-    borefield_cooling_dom.size(L3_sizing=True)
+    assert np.isclose(borefield_cooling_dom.size(L3_sizing=True), 111.35367751858108)
     borefield_cooling_dom.set_peak_heating(np.array(peakHeating) * 5)
-    borefield_cooling_dom.size(L3_sizing=True)
+    assert np.isclose(borefield_cooling_dom.size(L3_sizing=True),  181.06232590246438)
 
 
 def test_size_L4_fail(borefield):
