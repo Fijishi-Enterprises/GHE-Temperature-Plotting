@@ -186,8 +186,8 @@ class Borefield:
         self.Cp: float = 0.  # Thermal capacity J/kgK
         self.mu: float = 0.  # Dynamic viscosity Pa/s.
         self.Tf: float = 0.  # temperature of the fluid
-        self.Tf_H: float = 16.  # maximum temperature of the fluid
-        self.Tf_C: float = 0.  # minimum temperature of the fluid
+        self.Tf_H: NDArray[np.float64] = np.ones(12) * 16.  # maximum temperature of the fluid
+        self.Tf_C: NDArray[np.float64] = np.zeros(12)  # minimum temperature of the fluid
         self.fluid_data_available: bool = False  # needs to be True in order to calculate Rb*
 
         # initiate borehole parameters
@@ -403,21 +403,21 @@ class Borefield:
             self.calculate_fluid_thermal_resistance()
         self.calculate_pipe_thermal_resistance()
 
-    def set_max_ground_temperature(self, temp: float) -> None:
+    def set_max_ground_temperature(self, temp: Union[float, NDArray[np.float64]]) -> None:
         """
         This function sets the maximal ground temperature to temp.
 
         :return None
         """
-        self.Tf_H = temp
+        self.Tf_H = np.ones(12) * temp if isinstance(temp, (float, int)) else temp
 
-    def set_min_ground_temperature(self, temp: float) -> None:
+    def set_min_ground_temperature(self, temp: Union[float, NDArray[np.float64]]) -> None:
         """
         This function sets the minimal ground temperature to temp.
 
         :return None
         """
-        self.Tf_C = temp
+        self.Tf_C = np.ones(12) * temp if isinstance(temp, (float, int)) else temp
 
     def set_mass_flow_rate(self, mfr: float) -> None:
         """
@@ -858,6 +858,14 @@ class Borefield:
                 temperature_profile = self.temperature_result
 
             nb_of_steps = 12 if not hourly else 8760
+            if not hourly or (self.Tf_H.size == 8760 and self.Tf_C.size == 8760):
+                Tf_H = self.Tf_H
+                Tf_C = self.Tf_C
+            else:
+                Tf_H = np.array([self.Tf_H[idx] for idx in range(len(self.HOURLY_LOAD_ARRAY[:-1])) for _ in range(self.HOURLY_LOAD_ARRAY[idx],
+                                                                                                              self.HOURLY_LOAD_ARRAY[idx+1])])
+                Tf_C = np.array([self.Tf_C[idx] for idx in range(len(self.HOURLY_LOAD_ARRAY[:-1])) for _ in range(self.HOURLY_LOAD_ARRAY[idx],
+                                                                                                                  self.HOURLY_LOAD_ARRAY[idx+1])])
 
             # in case of quadrants 1 and 3, we need the first year only
             # in case of quadrants 2 and 4, we need the last year only
@@ -871,11 +879,11 @@ class Borefield:
             if quadrant == 1 or quadrant == 2:
                 # maximum temperature
                 # convert back to required length
-                self.H = (temperature_profile.max() - self._Tg()) / (self.Tf_H - self._Tg()) * H_prev
+                self.H = ((temperature_profile - self._Tg()) / (Tf_H - self._Tg())).max() * H_prev
             else:
                 # minimum temperature
                 # convert back to required length
-                self.H = (temperature_profile.min() - self._Tg()) / (self.Tf_C - self._Tg()) * H_prev
+                self.H = ((temperature_profile - self._Tg()) / (Tf_C - self._Tg())).max() * H_prev
 
         return self.H
 
@@ -972,7 +980,7 @@ class Borefield:
             # limited by extraction load
 
             # temperature limit is set to the minimum temperature
-            self.Tf = self.Tf_C
+            self.Tf = self.Tf_C.max()
 
             # Select month with the highest peak load and take both the peak and average load from that month
             month_index = self.peak_heating.argmax(0)
@@ -987,7 +995,7 @@ class Borefield:
             # limited by injection load
 
             # temperature limit set to maximum temperature
-            self.Tf = self.Tf_H
+            self.Tf = self.Tf_H.min()
 
             # Select month with the highest peak load and take both the peak and average load from that month
             month_index = self.peak_cooling.argmax(0)
@@ -1007,7 +1015,7 @@ class Borefield:
             # limited by extraction load
 
             # temperature limit is set to the minimum temperature
-            self.Tf = self.Tf_C
+            self.Tf = self.Tf_C.max()
 
             # Select month with the highest peak load and take both the peak and average load from that month
             month_index = self.peak_heating.argmax(0) if month_index is None else month_index
@@ -1025,7 +1033,7 @@ class Borefield:
             # limited by injection
 
             # temperature limit set to maximum temperature
-            self.Tf = self.Tf_H
+            self.Tf = self.Tf_H.min()
 
             # Select month with the highest peak load and take both the peak and average load from that month
             month_index = self.peak_cooling.argmax(0) if month_index is None else month_index
@@ -1217,8 +1225,9 @@ class Borefield:
                          label='Tf base heating')
 
             # define temperature bounds
-            ax1.hlines(self.Tf_C, 0, self.simulation_period, colors='r', linestyles='dashed', label='', lw=1)
-            ax1.hlines(self.Tf_H, 0, self.simulation_period, colors='b', linestyles='dashed', label='', lw=1)
+            time_array = self.time_L3_last_year / 12 / 730. / 3600.
+            ax1.step(time_array, np.tile(self.Tf_C, self.simulation_period), color='r', linestyle='dashed', label='', lw=1)
+            ax1.step(time_array, np.tile(self.Tf_H, self.simulation_period), color='b', linestyle='dashed', label='', lw=1)
             ax1.set_xticks(range(0, self.simulation_period + 1, 2))
 
             # Plot legend
@@ -1655,7 +1664,7 @@ class Borefield:
                 heat_ok = True
 
             # deviation from maximum temperature
-            if abs(self.results_peak_cooling.max() - self.Tf_H) > 0.05:
+            if abs((self.results_peak_cooling - self.Tf_H).max()) > 0.05:
 
                 # check if it goes above the threshold
                 if self.results_peak_cooling.max() > self.Tf_H:

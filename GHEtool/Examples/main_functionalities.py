@@ -77,6 +77,15 @@ if __name__ == "__main__":
     # plot temperature profile for the calculated depth
     borefield.print_temperature_profile(legend=True)
 
+    # size the borefield for quadrant 3
+    # for more information about borefield quadrants, see (Peere et al., 2021)
+    borefield.set_min_ground_temperature(np.array([0, 0, 0, 1, 2, 3, 4, 3, 2, 1, 0, 0]))
+    borefield.set_max_ground_temperature(np.array([20, 20, 20, 19, 18, 17, 16, 17, 18, 19, 20, 20]))
+    depth = borefield.size(100, L3_sizing=True)
+    print("The borehole depth is: ", str(round(depth, 2)), "m for a sizing in quadrant 3")
+    # plot temperature profile for the calculated depth
+    borefield.print_temperature_profile(legend=True)
+
     # size with a dynamic Rb* value
     # note that the original Rb* value will be overwritten!
 
@@ -89,7 +98,7 @@ if __name__ == "__main__":
     # disable the use of constant_Rb with the setup, in order to plot the profile correctly
     # when it is given as an argument to the size function, it will size correctly, but the plot will be with
     # constant Rb* since it has not been changed in the setup function
-    borefield.sizing_setup(use_constant_Rb=False)
+    borefield.sizing_setup(use_constant_Rb=False, L3_sizing=True)
     depth = borefield.size(100)
     print("The borehole depth is: ", str(round(depth, 2)), "m for a sizing with dynamic Rb*.")
     borefield.print_temperature_profile(legend=True)

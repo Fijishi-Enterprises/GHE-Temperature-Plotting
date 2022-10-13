@@ -42,8 +42,8 @@ def test_borefield():
     borefield.set_min_ground_temperature(0)  # minimum temperature
 
     assert borefield.simulation_period == 20
-    assert borefield.Tf_C == 0
-    assert borefield.Tf_H == 16
+    assert np.allclose(borefield.Tf_C, np.zeros(12))
+    assert np.allclose(borefield.Tf_H, np.ones(12) * 16)
     np.testing.assert_array_equal(borefield.peak_heating, np.array([160., 142, 102., 55., 26.301369863013697, 0., 0., 0., 40.4, 85., 119., 136.]))
 
 
@@ -163,8 +163,32 @@ def test_size_L3(borefield):
     assert np.isclose(borefield.size(L3_sizing=True), 91.99202686026176)
 
 
+def test_size_L3_flexible_temp_border(borefield):
+    min_temp = np.array([0, 0, 0, 1, 2, 3, 4, 3, 2, 1, 0, 0])
+    max_temp = np.array([20, 20, 20, 19, 18, 17, 16, 17, 18, 19, 20, 20])
+    borefield.set_min_ground_temperature(min_temp)
+    borefield.set_max_ground_temperature(max_temp)
+    assert np.isclose(borefield.size(L3_sizing=True), 80.2439467341747)
+    assert np.all(borefield.results_peak_heating > np.tile(min_temp, borefield.simulation_period) * 0.9999)
+    assert np.all(borefield.results_peak_cooling < np.tile(max_temp, borefield.simulation_period) * 1.001)
+
+
 def test_size_L4(hourly_borefield):
     assert np.isclose(hourly_borefield.size(L4_sizing=True), 257.22412362020594)
+
+
+def test_size_L4_flexible_temp_border(hourly_borefield):
+    min_temp = np.array([0, 0, 0, 1, 2, 3, 4, 3, 2, 1, 0, 0])
+    max_temp = np.array([20, 20, 20, 19, 18, 17, 16, 17, 18, 19, 20, 20])
+    hourly_borefield.set_min_ground_temperature(min_temp)
+    hourly_borefield.set_max_ground_temperature(max_temp)
+    assert np.isclose(hourly_borefield.size(L4_sizing=True), 220.5150462613494)
+    min_temp = np.array([min_temp[idx] for idx in range(len(hourly_borefield.HOURLY_LOAD_ARRAY[:-1])) for _ in range(
+        hourly_borefield.HOURLY_LOAD_ARRAY[idx], hourly_borefield.HOURLY_LOAD_ARRAY[idx + 1])])
+    max_temp = np.array([max_temp[idx] for idx in range(len(hourly_borefield.HOURLY_LOAD_ARRAY[:-1])) for _ in range(
+        hourly_borefield.HOURLY_LOAD_ARRAY[idx], hourly_borefield.HOURLY_LOAD_ARRAY[idx + 1])])
+    assert np.all(hourly_borefield.temperature_result > np.tile(min_temp, hourly_borefield.simulation_period) * 0.9999)
+    assert np.all(hourly_borefield.temperature_result < np.tile(max_temp, hourly_borefield.simulation_period) * 1.011)
 
 
 def test_cooling_dom(borefield_cooling_dom):
