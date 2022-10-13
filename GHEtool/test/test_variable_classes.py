@@ -1,5 +1,4 @@
-import pytest
-from GHEtool import *
+from GHEtool import GroundData, FluidData, PipeData
 
 
 def test_ground_data():
@@ -68,6 +67,7 @@ def test_pipe_data_unequal():
     data = PipeData(1, 0.015, 0.02, 0.4, 0.05, 0.075, 2)
     data2 = PipeData(1, 0.016, 0.02, 0.4, 0.05, 0.075, 2)
     assert data != data2
+
 
 def test_unequal_cross():
     data_pipe = PipeData(1, 0.015, 0.02, 0.4, 0.05, 0.075, 2)

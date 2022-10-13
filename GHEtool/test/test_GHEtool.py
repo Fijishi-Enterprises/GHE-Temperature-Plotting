@@ -1,5 +1,6 @@
 # test if model can be imported
-from GHEtool import *
+from GHEtool import GroundData, FluidData, PipeData, Borefield
+from GHEtool.GHEtool import FOLDER
 import pytest
 import numpy as np
 import pygfunction as gt
@@ -13,8 +14,8 @@ peakCooling = [0., 0, 34., 69., 133., 187., 213., 240., 160., 37., 0., 0.]      
 peakHeating = [160., 142, 102., 55., 0., 0., 0., 0., 40.4, 85., 119., 136.]             # Peak heating in kW
 
 # annual heating and cooling load
-annualHeatingLoad = 300*10**3 # kWh
-annualCoolingLoad = 160*10**3 # kWh
+annualHeatingLoad = 300*10**3  # kWh
+annualCoolingLoad = 160*10**3  # kWh
 
 # percentage of annual load per month (15.5% for January ...)
 montlyLoadHeatingPercentage = [0.155, 0.148, 0.125, .099, .064, 0., 0., 0., 0.061, 0.087, 0.117, 0.144]
@@ -72,7 +73,7 @@ def empty_borefield():
 def hourly_borefield():
     borefield = Borefield()
     borefield.set_ground_parameters(data)
-    borefield.load_hourly_profile("./Examples/hourly_profile.csv")
+    borefield.load_hourly_profile(f"{FOLDER}/Examples/hourly_profile.csv")
     return borefield
 
 
@@ -206,8 +207,6 @@ def test_sizing_L32(borefield_cooling_dom):
     borefield_cooling_dom.size(L3_sizing=True)
 
 
-def test_size_L4(borefield):
-    try:
+def test_size_L4_fail(borefield):
+    with pytest.raises(ValueError):
         borefield.size(L4_sizing=True)
-    except ValueError:
-        assert True
