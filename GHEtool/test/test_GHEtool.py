@@ -169,6 +169,7 @@ def test_size_L3_flexible_temp_border(borefield):
     borefield.set_min_ground_temperature(min_temp)
     borefield.set_max_ground_temperature(max_temp)
     assert np.isclose(borefield.size(L3_sizing=True), 80.2439467341747)
+    borefield.calculate_temperatures(80.2439467341747)
     assert np.all(borefield.results_peak_heating > np.tile(min_temp, borefield.simulation_period) * 0.9999)
     assert np.all(borefield.results_peak_cooling < np.tile(max_temp, borefield.simulation_period) * 1.001)
 
