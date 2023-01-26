@@ -758,9 +758,9 @@ class MainWindow(QtW.QMainWindow, UiGhetool):
             self.filename = MainWindow.filenameDefault
             general_changes(["Scenario 1"])
 
-        if location.split(".")[-1] == "dat":
-            # try loading from EED
-            load_from_EED(location)
+        # if location.split(".")[-1] == "dat":
+        #     # try loading from EED
+        #     load_from_EED(location)
 
         try:
             # open file and get data
