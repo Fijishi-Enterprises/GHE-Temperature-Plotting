@@ -181,6 +181,9 @@ class DataStorage:
         # create data class object from set data
         self._create_data_classes()
 
+    def from_EED(self, EED) -> None:
+        pass
+
     def __eq__(self, other) -> bool:
         """
         This function checks whether or not the current DataStorage object is equal to another one.

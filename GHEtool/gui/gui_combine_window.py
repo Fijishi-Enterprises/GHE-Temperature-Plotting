@@ -743,6 +743,25 @@ class MainWindow(QtW.QMainWindow, UiGhetool):
             self.list_widget_scenario.setCurrentRow(0)
             self.check_results()
 
+        def load_from_EED(location: str) -> None:
+            with open(location, "r") as file:
+                first_line = file.readline()
+                if first_line != "& Version=4.20":
+                    raise ImportError("The datafile cannot be loaded!")
+
+            self.list_ds = []
+            ds = DataStorage(self.gui_structure)
+            ds.from_EED(location)
+
+            self.list_ds.append(ds)
+            # set and change the window title
+            self.filename = MainWindow.filenameDefault
+            general_changes(["Scenario 1"])
+
+        if location.split(".")[-1] == "dat":
+            # try loading from EED
+            load_from_EED(location)
+
         try:
             # open file and get data
             with open(location, "r") as file:
