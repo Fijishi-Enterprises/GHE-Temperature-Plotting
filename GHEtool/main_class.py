@@ -248,7 +248,7 @@ class Borefield(BaseClass):
             return
         self.borefield = borefield
 
-    def create_rectangular_borefield(self, N_1: int, N_2: int, B_1: int, B_2: int, H: float, D: float = 1, r_b: float = 0.075):
+    def create_rectangular_borefield(self, N_1: int, N_2: int, B_1: float, B_2: float, H: float, D: float = 1, r_b: float = 0.075):
         """
         This function creates a rectangular borefield.
         It calls the pygfunction module in the background.
@@ -260,9 +260,9 @@ class Borefield(BaseClass):
             Number of boreholes in the x direction
         N_2 : int
             Number of boreholes in the y direction
-        B_1 : int
+        B_1 : float
             Distance between adjacent boreholes in the x direction [m]
-        B_2 : int
+        B_2 : float
             Distance between adjacent boreholes in the y direction [m]
         H : float
             Borehole depth [m]

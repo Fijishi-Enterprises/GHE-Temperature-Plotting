@@ -786,4 +786,3 @@ def test_backward_compatibility(qtbot):
             if isinstance(getattr(ds_old, option), (str, bool)):
                 assert getattr(ds_old, option) == getattr(ds_new, option)
                 continue
-
