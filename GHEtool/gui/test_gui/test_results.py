@@ -56,9 +56,9 @@ def create_borefield(gs: GuiStructure) -> Borefield:
     return borefield
 
 
-@given(depth=st.floats(5, 1_000), k_s=st.floats(0.1, 10), heat_cap=st.floats(500, 10_000), ground_temp=st.floats(10, 50))
+@given(depth=st.floats(5, 1_000), k_s=st.floats(0.1, 10), heat_cap=st.floats(500, 10_000), ground_temp=st.floats(10, 50), r_b=st.floats(0.05, 0.2))
 @settings(suppress_health_check=[HealthCheck.function_scoped_fixture], max_examples=30,  deadline=None)
-def test_temp_profile_ground_data(qtbot, depth: float, k_s: float, heat_cap: float, ground_temp: float):
+def test_temp_profile_ground_data(qtbot, depth: float, k_s: float, heat_cap: float, ground_temp: float, r_b: float):
     # depth: float = 100
     # k_s: float = 5
     # heat_cap: float = 2000
@@ -72,6 +72,7 @@ def test_temp_profile_ground_data(qtbot, depth: float, k_s: float, heat_cap: flo
     heat_cap = round(heat_cap, 1)
     depth = round(depth, 2)
     ground_temp = round(ground_temp, 2)
+    r_b = round(ground_temp, 4)
 
     gs = main_window.gui_structure
 
@@ -84,15 +85,12 @@ def test_temp_profile_ground_data(qtbot, depth: float, k_s: float, heat_cap: flo
     gs.option_ground_temp.set_value(ground_temp)
     gs.option_depth.set_value(depth)
     gs.option_temp_gradient.set_value(0)
+    gs.option_constant_rb.set_value(r_b)
 
-    gd = GroundData(k_s, ground_temp, gs.option_constant_rb.get_value(), heat_cap * 1_000, 0)
+    gd = GroundData(k_s, ground_temp, r_b, heat_cap * 1_000, 0)
     borefield.set_ground_parameters(gd)
 
-    # borefield.calculate_temperatures(depth)
-
-
     main_window.save_scenario()
-    # main_window.start_current_scenario_calculation()
 
     ds = main_window.list_ds[-1]
     borefield_gui, func = data_storage_2_borefield_callable(ds)
