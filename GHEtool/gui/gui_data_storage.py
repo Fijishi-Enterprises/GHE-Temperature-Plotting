@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import pygfunction as gt
 
 from GHEtool import Borefield, FluidData, GroundData, PipeData
-from GHEtool.gui.gui_classes import ListBox
+from GHEtool.gui.gui_classes.gui_classes import ListBox
 from GHEtool.gui.gui_structure import GuiStructure
 
 

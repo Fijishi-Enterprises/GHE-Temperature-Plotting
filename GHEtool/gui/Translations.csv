@@ -1,5 +1,5 @@
 ﻿name;English;German;Dutch;Italian;French;Spanish;Galician
-icon;:/icons/icons/Flag_English.svg;:/icons/icons/Flag_German.svg;:/icons/icons/Flag_Dutch.svg;:/icons/icons/Flag_Italian.svg;:/icons/icons/Flag_French.svg;:/icons/icons/Flag_Spain.svg;:/icons/icons/Flag_Galicia.svg
+icon;Flag_English.svg;Flag_German.svg;Flag_Dutch.svg;Flag_Italian.svg;Flag_French.svg;Flag_Spain.svg;Flag_Galicia.svg
 short_cut;Ctrl+Alt+E;Ctrl+Alt+G;Ctrl+Alt+D;Ctrl+Alt+I;Ctrl+Alt+F;Ctrl+Alt+S;Ctrl+Alt+A
 scenarioString;Scenario;Szenario;Scenario;Scenario;Scénario;Escenario;Escenario
 label_Language;Language: ;Sprache: ;Taal: ;Languange: ;Languange: ;Idioma:;Lingua: 

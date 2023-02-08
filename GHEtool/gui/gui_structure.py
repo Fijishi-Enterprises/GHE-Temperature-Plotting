@@ -2,7 +2,7 @@
 This document contains all the information relevant for the GUI.
 It contains all the options, categories etc. that should appear on the GUI.
 """
-from math import cos, pi, sin, tan
+from math import cos, pi, sin
 from typing import List, Optional, Tuple, Union
 
 import PySide6.QtGui as QtG
@@ -11,8 +11,8 @@ from numpy import array, cos, int64, round, sin, sum
 from pandas import DataFrame as pd_DataFrame
 from pandas import read_csv as pd_read_csv
 
-from GHEtool.gui.gui_base_class import DARK, GREY, LIGHT, WHITE
-from GHEtool.gui.gui_classes import (
+from GHEtool.gui.gui_classes.gui_base_class import DARK, GREY, LIGHT, WHITE
+from GHEtool.gui.gui_classes.gui_classes import (
     Aim,
     ButtonBox,
     Category,
@@ -27,9 +27,8 @@ from GHEtool.gui.gui_classes import (
     Page,
     ResultFigure,
     ResultText,
-    check_aim_options,
 )
-from GHEtool.gui.translation_class import Translations
+from GHEtool.gui.gui_classes.translation_class import Translations
 
 
 def load_data_GUI(filename: str, thermal_demand: int, heating_load_column: str, cooling_load_column: str, combined: str, sep: str,
@@ -173,16 +172,16 @@ class GuiStructure:
 
         #def create_page_aim():
         # create page
-        self.page_aim = Page(name="Aim of simulation", button_name="Aim", icon=":/icons/icons/Aim_Inv.svg")
+        self.page_aim = Page(name="Aim of simulation", button_name="Aim", icon="Aim_Inv.svg")
 
-        self.aim_temp_profile = Aim(page=self.page_aim, label="Determine temperature profile", icon=":/icons/icons/Temp_Profile.svg")
-        self.aim_req_depth = Aim(page=self.page_aim, label="Determine required depth", icon=":/icons/icons/Depth_determination.svg")
-        # self.aim_size_length = Aim(page=self.page_aim, label="Size borefield by length and width", icon=":/icons/icons/Size_Length.svg")
-        self.aim_optimize = Aim(page=self.page_aim, label="Optimize load profile", icon=":/icons/icons/Optimize_Profile.svg")
+        self.aim_temp_profile = Aim(page=self.page_aim, label="Determine temperature profile", icon="Temp_Profile.svg")
+        self.aim_req_depth = Aim(page=self.page_aim, label="Determine required depth", icon="depth_determination.svg")
+        # self.aim_size_length = Aim(page=self.page_aim, label="Size borefield by length and width", icon="Size_Length.svg")
+        self.aim_optimize = Aim(page=self.page_aim, label="Optimize load profile", icon="Optimize_Profile.svg")
 
         #def create_page_options():
         # create page
-        self.page_options = Page("Options", "Options", ":/icons/icons/Options.svg")
+        self.page_options = Page("Options", "Options", "Options.svg")
         self.page_aim.set_next_page(self.page_options)
         self.page_options.set_previous_page(self.page_aim)
 
@@ -213,7 +212,7 @@ class GuiStructure:
 
         # def create_page_borehole():
         # create page
-        self.page_borehole = Page("Borehole and earth", "Borehole\nand earth", ":/icons/icons/Borehole.png")
+        self.page_borehole = Page("Borehole and earth", "Borehole\nand earth", "Borehole.png")
         self.page_options.set_next_page(self.page_borehole)
         self.page_borehole.set_previous_page(self.page_options)
 
@@ -448,7 +447,7 @@ class GuiStructure:
 
         #def create_page_borehole_resistance():
         # create page
-        self.page_borehole_resistance = Page("Equivalent borehole resistance", "Borehole\nresistance", ":/icons/icons/Resistance.png")
+        self.page_borehole_resistance = Page("Equivalent borehole resistance", "Borehole\nresistance", "Resistance.png")
         self.page_borehole.set_next_page(self.page_borehole_resistance)
         self.page_borehole_resistance.set_previous_page(self.page_borehole)
 
@@ -609,7 +608,7 @@ class GuiStructure:
 
         #def create_page_thermal_demands():
         # create page
-        self.page_thermal = Page("Thermal demands", "Thermal\ndemands", ":/icons/icons/Thermal.svg")
+        self.page_thermal = Page("Thermal demands", "Thermal\ndemands", "Thermal.svg")
         self.page_borehole_resistance.set_next_page(self.page_thermal)
         self.page_thermal.set_previous_page(self.page_borehole)
 
@@ -639,7 +638,7 @@ class GuiStructure:
         self.option_unit_data = ButtonBox(label="Unit data: ", default_index=1, entries=["W", "kW", "MW"],
                                           category=self.category_select_file)
 
-        self.button_load_csv = FunctionButton(category=self.category_select_file, button_text="Load", icon=":/icons/icons/Download.svg")
+        self.button_load_csv = FunctionButton(category=self.category_select_file, button_text="Load", icon="Download.svg")
 
         # add dependencies
         self.option_filename.add_aim_option_2_be_set_for_check(self.aim_optimize)
@@ -988,7 +987,7 @@ class GuiStructure:
 
         def create_page_results():
             # create page
-            self.page_result = Page("Results", "Results", ":/icons/icons/Result.svg")
+            self.page_result = Page("Results", "Results", "Result.svg")
 
             def create_category_no_result():
                 self.cat_no_result = Category(page=self.page_result, label="No results")
@@ -1124,7 +1123,7 @@ class GuiStructure:
 
         def create_page_settings():
             # create page
-            self.page_settings = Page("Settings", "Settings", ":/icons/icons/Settings.svg")
+            self.page_settings = Page("Settings", "Settings", "Settings.svg")
 
             self.category_language = Category(page=self.page_settings, label="Language")
 

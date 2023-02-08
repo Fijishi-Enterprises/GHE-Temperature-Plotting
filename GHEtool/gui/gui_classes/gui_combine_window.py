@@ -16,12 +16,12 @@ import PySide6.QtGui as QtG
 import PySide6.QtWidgets as QtW
 import pathlib
 
-from .gui_base_class import UiGhetool, set_graph_layout
-from .gui_calculation_thread import CalcProblem
-from .gui_data_storage import DataStorage
-from .gui_structure import FigureOption, GuiStructure, Option
-from .gui_classes import check_aim_options, show_linked_options
-from .translation_class import Translations
+from GHEtool.gui.gui_classes.gui_base_class import UiGhetool, set_graph_layout
+from GHEtool.gui.gui_classes.gui_calculation_thread import CalcProblem
+from GHEtool.gui.gui_data_storage import DataStorage
+from GHEtool.gui.gui_structure import FigureOption, GuiStructure, Option
+from GHEtool.gui.gui_classes.gui_classes import check_aim_options, show_linked_options
+from GHEtool.gui.gui_classes.translation_class import Translations
 
 
 currentdir = dirname(realpath(__file__))
@@ -165,7 +165,7 @@ class MainWindow(QtW.QMainWindow, UiGhetool):
         """
         action = QtG.QAction(self.central_widget)
         icon = QtG.QIcon()
-        icon.addFile(icon_name, QtC.QSize(), QtG.QIcon.Normal, QtG.QIcon.Off)
+        icon.addFile(f'{FOLDER}/gui/icons/{icon_name}', QtC.QSize(), QtG.QIcon.Normal, QtG.QIcon.Off)
         action.setIcon(icon)
         self.menuLanguage.addAction(action)
         action.setText(name)

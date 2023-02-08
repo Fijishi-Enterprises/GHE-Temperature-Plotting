@@ -19,6 +19,7 @@ from functools import partial as ft_partial
 from os.path import exists
 from typing import Callable, List, Optional, Tuple, Union
 from pathlib import Path
+from GHEtool import FOLDER
 
 import matplotlib.pyplot as plt
 import PySide6.QtCore as QtC  # type: ignore
@@ -28,7 +29,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 
 
-from GHEtool.gui.gui_base_class import DARK, GREY, LIGHT, LIGHT_SELECT, WARNING, WHITE, set_graph_layout
+from GHEtool.gui.gui_classes.gui_base_class import DARK, GREY, LIGHT, LIGHT_SELECT, WARNING, WHITE, set_graph_layout
 
 
 def _update_opponent_not_change(button: QtW.QPushButton, false_button_list: List[QtW.QPushButton] = None):
@@ -1662,7 +1663,7 @@ class FunctionButton:
         self.button.setText(f"  {self.button_text}  ")
         icon = QtG.QIcon()
         # icon11.addPixmap(QtGui_QPixmap(icon), QtGui_QIcon.Normal, QtGui_QIcon.Off)
-        icon.addFile(self.icon)
+        icon.addFile(f'{FOLDER}/gui/icons/{self.icon}')
         self.button.setIcon(icon)
         self.button.setIconSize(QtC.QSize(20, 20))
         self.button.setMinimumWidth(100)
@@ -2254,7 +2255,7 @@ class ResultFigure(Category):
         for name, icon_name in [("save_figure", "Save_Inv"), ('home', 'Home'), ('zoom', 'Search'), ('back', 'Back'), ('forward', 'Forward'),
                                 ('pan', 'Pen'), ('configure_subplots', 'Options'), ('edit_parameters', 'Parameters')]:
             icon = QtG.QIcon()
-            icon.addFile(f":/icons/icons/{icon_name}.svg", QtC.QSize(), QtG.QIcon.Normal, QtG.QIcon.Off)
+            icon.addFile(f"{FOLDER}/gui/icons/{icon_name}.svg", QtC.QSize(), QtG.QIcon.Normal, QtG.QIcon.Off)
             self.toolbar._actions[name].setIcon(icon)
         self._kwargs: dict = {}
         self.function_name: str = ""
@@ -2289,7 +2290,7 @@ class ResultFigure(Category):
         for name, icon_name in [("save_figure", "Save_Inv"), ('home', 'Home'), ('zoom', 'Search'), ('back', 'Back'), ('forward', 'Forward'),
                                 ('pan', 'Pen'), ('configure_subplots', 'Options'), ('edit_parameters', 'Parameters')]:
             icon = QtG.QIcon()
-            icon.addFile(f":/icons/icons/{icon_name}.svg", QtC.QSize(), QtG.QIcon.Normal, QtG.QIcon.Off)
+            icon.addFile(f"{FOLDER}/gui/icons/{icon_name}.svg", QtC.QSize(), QtG.QIcon.Normal, QtG.QIcon.Off)
             toolbar._actions[name].setIcon(icon)
 
         self.layout_frame_canvas.replaceWidget(self.canvas, canvas)
@@ -2467,7 +2468,7 @@ class Aim:
         Examples
         --------
         >>> aim_example = Aim(label='Example aim',
-        >>>                   icon=":/icons/icons/example_icon.svg",
+        >>>                   icon="example_icon.svg",
         >>>                   page=page_aim)
 
         Gives:
@@ -2554,7 +2555,7 @@ class Aim:
         None
         """
         icon11 = QtG.QIcon()
-        icon11.addFile(self.icon)
+        icon11.addFile(f"{FOLDER}/gui/icons/{self.icon}")
         self.widget.setParent(frame)
         push_button = self.widget
         push_button.setIcon(icon11)
@@ -2656,7 +2657,7 @@ class Page:
 
         >>> page_example = Page(name='Example page',
         >>>                     button_name='Name of\\nthe button',
-        >>>                     icon=":/icons/icons/example_icon.svg")
+        >>>                     icon="example_icon.svg")
 
         Gives:
 
@@ -2806,7 +2807,7 @@ class Page:
         self.button.setParent(central_widget)
         self.button.setMinimumSize(QtC.QSize(100, 100))
         icon23 = QtG.QIcon()
-        icon23.addFile(self.icon, QtC.QSize(), QtG.QIcon.Normal, QtG.QIcon.Off)
+        icon23.addFile(f"{FOLDER}/gui/icons/{self.icon}", QtC.QSize(), QtG.QIcon.Normal, QtG.QIcon.Off)
         self.button.setIcon(icon23)
         self.button.setIconSize(QtC.QSize(24, 24))
         self.button.setText(self.button_name)
@@ -2913,7 +2914,7 @@ class Page:
             self.push_button_previous.setMinimumSize(QtC.QSize(0, 30))
             self.push_button_previous.setMaximumSize(QtC.QSize(16777215, 30))
             icon = QtG.QIcon()
-            icon.addFile(":/icons/icons/ArrowLeft2.svg", QtC.QSize(), QtG.QIcon.Normal, QtG.QIcon.Off)
+            icon.addFile(f"{FOLDER}/gui/icons/ArrowLeft2.svg", QtC.QSize(), QtG.QIcon.Normal, QtG.QIcon.Off)
             self.push_button_previous.setIcon(icon)
             self.push_button_previous.setIconSize(QtC.QSize(20, 20))
             self.push_button_previous.setText(f"  {self.previous_label}  ")
@@ -2930,7 +2931,7 @@ class Page:
             self.push_button_next.setMaximumSize(QtC.QSize(16777215, 30))
             self.push_button_next.setLayoutDirection(QtC.Qt.RightToLeft)
             icon = QtG.QIcon()
-            icon.addFile(":/icons/icons/ArrowRight2.svg", QtC.QSize(), QtG.QIcon.Normal, QtG.QIcon.Off)
+            icon.addFile(f"{FOLDER}/gui/icons/ArrowRight2.svg", QtC.QSize(), QtG.QIcon.Normal, QtG.QIcon.Off)
             self.push_button_next.setIcon(icon)
             self.push_button_next.setIconSize(QtC.QSize(20, 20))
             self.push_button_next.setText(f"  {self.next_label}  ")

@@ -11,7 +11,7 @@ def run(path_list=None):  # pragma: no cover
     from PySide6.QtWidgets import QMainWindow as QtWidgets_QMainWindow
 
     from GHEtool import FOLDER
-    from GHEtool.gui.gui_combine_window import MainWindow
+    from GHEtool.gui.gui_classes.gui_combine_window import MainWindow
 
     # init application
     app = QtWidgets_QApplication()

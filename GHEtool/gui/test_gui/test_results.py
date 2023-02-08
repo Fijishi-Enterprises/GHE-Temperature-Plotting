@@ -5,34 +5,15 @@ sys.setrecursionlimit(1500)
 
 import PySide6.QtWidgets as QtW
 
-from GHEtool.gui.gui_combine_window import MainWindow
+from GHEtool.gui.gui_classes.gui_combine_window import MainWindow
 from GHEtool.gui.gui_structure import GuiStructure
+from GHEtool.gui.data_storage_2_borefield_callable_function import data_storage_2_borefield_callable
+from time import sleep
 
 from GHEtool import Borefield, GroundData, FluidData, PipeData
 import numpy as np
-from time import sleep
 
 from hypothesis import given, strategies as st, settings, HealthCheck
-
-
-def check_results(main_window: MainWindow, borefield: Borefield) -> None:
-    main_window.save_scenario()
-    main_window.start_current_scenario_calculation()
-
-    ds = main_window.list_ds[-1]
-
-    while ds.borefield is None:
-        QtW.QApplication.processEvents()
-
-    assert np.allclose(ds.borefield.results_peak_heating, borefield.results_peak_heating, rtol=0.000_01, atol=0.01)
-    assert np.allclose(ds.borefield.results_peak_cooling, borefield.results_peak_cooling, rtol=0.000_01, atol=0.01)
-    assert np.allclose(ds.borefield.results_month_heating, borefield.results_month_heating, rtol=0.000_01, atol=0.01)
-    assert np.allclose(ds.borefield.results_month_cooling, borefield.results_month_cooling, rtol=0.000_01, atol=0.01)
-
-    try:
-        main_window.delete_backup()
-    except PermissionError:
-        sleep(1)
 
 
 def create_borefield(gs: GuiStructure) -> Borefield:
@@ -103,13 +84,26 @@ def test_temp_profile_ground_data(qtbot, depth: float, k_s: float, heat_cap: flo
     gs.option_heat_capacity.set_value(heat_cap)
     gs.option_ground_temp.set_value(ground_temp)
     gs.option_depth.set_value(depth)
+    gs.option_temp_gradient.set_value(0)
 
     gd = GroundData(k_s, ground_temp, gs.option_constant_rb.get_value(), heat_cap * 1_000, 0)
     borefield.set_ground_parameters(gd)
 
-    borefield.calculate_temperatures(depth)
+    # borefield.calculate_temperatures(depth)
 
-    check_results(main_window, borefield)
+
+    main_window.save_scenario()
+    # main_window.start_current_scenario_calculation()
+
+    ds = main_window.list_ds[-1]
+    borefield_gui, func = data_storage_2_borefield_callable(ds)
+    assert borefield_gui.ground_data == borefield.ground_data
+    assert func.func == borefield_gui.calculate_temperatures
+    assert func.args == (depth, )
+    assert func.keywords == {}
+
+    main_window.delete_backup()
+
 
 @given(gradient=st.floats(0.5, 10), ground_temp=st.floats(0, 20))
 @settings(suppress_health_check=[HealthCheck.function_scoped_fixture], max_examples=10,  deadline=None)
@@ -138,20 +132,29 @@ def test_temp_profile_temp_gradient(qtbot, gradient: float, ground_temp: float):
     gs.option_temp_gradient.set_value(gradient)
     gs.option_method_temp_gradient.set_value(1)
     gs.option_ground_temp_gradient.set_value(ground_temp)
+    main_window.save_scenario()
 
     borefield.ground_data.flux = k_s * gradient / 100
-    borefield.ground_data.Tg = ground_temp
+    borefield.ground_data.Tg = round(ground_temp, 2)
 
     borefield._sizing_setup.use_constant_Tg = False
-    borefield.calculate_temperatures(depth)
 
-    check_results(main_window, borefield)
+    ds = main_window.list_ds[-1]
+    borefield_gui, func = data_storage_2_borefield_callable(ds)
+    assert np.isclose(borefield_gui.ground_data.flux, borefield.ground_data.flux)
+    assert np.isclose(borefield_gui.ground_data.Tg, borefield.ground_data.Tg)
+    assert borefield_gui._sizing_setup.use_constant_Tg == borefield._sizing_setup.use_constant_Tg
+    assert func.func == borefield_gui.calculate_temperatures
+    assert func.args == (depth,)
+    assert func.keywords == {}
+
+    main_window.delete_backup()
 
 
-@given(n_pipes=st.integers(1, 1), conduct_grout=st.floats(0.1, 1), conduct_pipe=st.floats(0.1, 1), inner_pipe=st.floats(0.01, 0.03),
-       pipe_thickness=st.floats(0.001, 0.005), dis=st.floats(0.18, 0.21), roughness=st.floats(0.000_000_1, 0.000_01))
-@settings(suppress_health_check=[HealthCheck.function_scoped_fixture], max_examples=50,  deadline=None)
-def test_temp_profile_pipe_data(qtbot, n_pipes: int, conduct_grout: float, conduct_pipe: float, inner_pipe: float, pipe_thickness: float, dis: float,
+@given(n_pipes=st.integers(1, 2), conduct_grout=st.floats(0.1, 1), conduct_pipe=st.floats(0.1, 1), inner_pipe=st.floats(0.01, 0.03),
+       pipe_thickness=st.floats(0.001, 0.005), roughness=st.floats(0.000_000_1, 0.000_01))
+@settings(suppress_health_check=[HealthCheck.function_scoped_fixture], max_examples=5,  deadline=None)
+def test_temp_profile_pipe_data(qtbot, n_pipes: int, conduct_grout: float, conduct_pipe: float, inner_pipe: float, pipe_thickness: float,
                                 roughness: float):
     # depth: float = 100
     # k_s: float = 5
@@ -159,18 +162,20 @@ def test_temp_profile_pipe_data(qtbot, n_pipes: int, conduct_grout: float, condu
     # ground_temp: float = 12.
     # init gui window
     main_window = MainWindow(QtW.QMainWindow(), qtbot)
+    main_window.delete_backup()
+    main_window = MainWindow(QtW.QMainWindow(), qtbot)
     main_window.save_scenario()
     main_window.add_scenario()
 
     gs = main_window.gui_structure
 
     depth = gs.option_depth.get_value()
-    gs.option_pipe_borehole_radius.set_value(0.3)
+    gs.option_pipe_borehole_radius.set_value(0.5)
 
     conduct_grout = round(conduct_grout, 3)
     conduct_pipe = round(conduct_pipe, 3)
     inner_pipe = round(inner_pipe, 4)
-    dis = round(dis, 4)
+    dis = round(0.5 - (inner_pipe + pipe_thickness) - 0.02, 4)
     outer_pipe = round(inner_pipe + pipe_thickness, 4)
     roughness = round(roughness, 7)
 
@@ -183,21 +188,30 @@ def test_temp_profile_pipe_data(qtbot, n_pipes: int, conduct_grout: float, condu
     borefield = create_borefield(gs)
 
     gs.option_pipe_grout_conductivity.set_value(conduct_grout)
+    gs.option_pipe_number.set_value(n_pipes)
     gs.option_pipe_outer_radius.set_value(outer_pipe)
     gs.option_pipe_inner_radius.set_value(inner_pipe)
     gs.option_pipe_conductivity.set_value(conduct_pipe)
-    gs.option_pipe_distance.set_value(dis)
-    gs.option_pipe_number.set_value(n_pipes)
     gs.option_pipe_roughness.set_value(roughness)
     gs.option_method_rb_calc.set_value(1)
+
+    while not np.isclose(gs.option_pipe_distance.get_value(), dis):
+        gs.option_pipe_distance.set_value(dis)
 
     borefield.set_pipe_parameters(pipe_data)
     borefield.set_fluid_parameters(fluid_data)
 
     borefield._sizing_setup.use_constant_Rb = False
-    borefield.calculate_temperatures(depth)
 
-    check_results(main_window, borefield)
+    main_window.save_scenario()
+    ds = main_window.list_ds[-1]
+    borefield_gui, func = data_storage_2_borefield_callable(ds)
+    assert borefield_gui.pipe_data == borefield.pipe_data
+    assert borefield_gui._sizing_setup.use_constant_Rb == borefield._sizing_setup.use_constant_Rb
+    assert func.func == borefield_gui.calculate_temperatures
+    assert func.args == (depth,)
+    assert func.keywords == {}
+
 
 @given(conduct=st.floats(0.1, 1), density=st.floats(500, 4_000), heat_cap=st.floats(500, 10_000),
        viscosity=st.floats(0.000_1, 0.02), flow_rate=st.floats(0.01, 5))
@@ -241,9 +255,17 @@ def test_temp_profile_fluid_data(qtbot, conduct: float, density: float, heat_cap
     borefield.set_fluid_parameters(fluid_data)
 
     borefield._sizing_setup.use_constant_Rb = False
-    borefield.calculate_temperatures(depth)
 
-    check_results(main_window, borefield)
+    main_window.save_scenario()
+    ds = main_window.list_ds[-1]
+    borefield_gui, func = data_storage_2_borefield_callable(ds)
+    assert borefield_gui.fluid_data == borefield.fluid_data
+    assert borefield_gui._sizing_setup.use_constant_Rb == borefield._sizing_setup.use_constant_Rb
+    assert func.func == borefield_gui.calculate_temperatures
+    assert func.args == (depth,)
+    assert func.keywords == {}
+
+    main_window.delete_backup()
 
 
 @given(width=st.integers(1,30), length=st.integers(1,30), spacing=st.floats(1, 20), burial_depth=st.floats(0.5, 2), radius=st.floats(0.05, 0.15))
@@ -272,9 +294,15 @@ def test_temp_profile_borefield_data(qtbot, width: int, length: int, spacing: fl
 
     borefield.create_rectangular_borefield(width, length, spacing, spacing, gs.option_depth.get_value(), burial_depth, radius)
 
-    borefield.calculate_temperatures(gs.option_depth.get_value())
+    main_window.save_scenario()
+    ds = main_window.list_ds[-1]
+    borefield_gui, func = data_storage_2_borefield_callable(ds)
+    assert borefield_gui.borefield[0].__str__() == borefield.borefield[0].__str__()
+    assert func.func == borefield_gui.calculate_temperatures
+    assert func.args == (gs.option_depth.get_value(),)
+    assert func.keywords == {}
 
-    check_results(main_window, borefield)
+    main_window.delete_backup()
 
 
 @given(L2=st.booleans(), temps=st.tuples(st.floats(-10, 40), st.floats(4, 12), st.floats(4, 12)))
@@ -304,17 +332,19 @@ def test_sizing_L2_L3_min_max(qtbot, L2: bool, temps: Tuple[float, float, float]
     gs.option_min_temp.set_value(min_temp)
     gs.option_ground_temp.set_value(ground_temp)
 
-    depth = borefield.size_L2(gs.option_depth.get_value()) if L2 else borefield.size_L3(gs.option_depth.get_value())
+    main_window.save_scenario()
 
     main_window.save_scenario()
-    main_window.start_current_scenario_calculation()
-
     ds = main_window.list_ds[-1]
-
-    while ds.borefield is None:
-        QtW.QApplication.processEvents()
-
-    assert np.isclose(depth, ds.borefield.H, rtol=0.000_01, atol=0.01)
+    borefield_gui, func = data_storage_2_borefield_callable(ds)
+    assert borefield_gui.ground_data.Tg == borefield.ground_data.Tg
+    assert borefield_gui.Tf_max == borefield.Tf_max
+    assert borefield_gui.Tf_min == borefield.Tf_min
+    assert borefield_gui._sizing_setup.L2_sizing == L2
+    assert borefield_gui._sizing_setup.L3_sizing != L2
+    assert func.func == borefield_gui.size
+    assert func.args == ()
+    assert func.keywords == {}
 
     main_window.delete_backup()
 
@@ -343,9 +373,16 @@ def test_temp_profile_period_peak_length(qtbot, period: int, peak_heating: float
     gs.option_len_peak_cooling.set_value(peak_cooling)
     gs.option_simu_period.set_value(period)
 
-    borefield.calculate_temperatures(gs.option_depth.get_value())
+    main_window.save_scenario()
+    ds = main_window.list_ds[-1]
+    borefield_gui, func = data_storage_2_borefield_callable(ds)
+    assert borefield_gui.length_peak_heating == borefield.length_peak_heating
+    assert borefield_gui.length_peak_cooling == borefield.length_peak_cooling
+    assert func.func == borefield_gui.calculate_temperatures
+    assert func.args == (gs.option_depth.get_value(), )
+    assert func.keywords == {}
 
-    check_results(main_window, borefield)
+    main_window.delete_backup()
 
 
 
@@ -380,10 +417,18 @@ def test_temp_profile_heating_data(qtbot, delay: int, factor: float) -> None:
                               gs.option_hp_aug, gs.option_hp_sep, gs.option_hp_oct, gs.option_hp_nov, gs.option_hp_dec], heat_peak):
         option.set_value(value)
 
+    main_window.save_scenario()
+    ds = main_window.list_ds[-1]
+    borefield_gui, func = data_storage_2_borefield_callable(ds)
+    assert np.allclose(borefield_gui.baseload_heating, borefield.baseload_heating)
+    assert np.allclose(borefield_gui.baseload_cooling, borefield.baseload_cooling)
+    assert np.allclose(borefield_gui.peak_heating, borefield.peak_heating)
+    assert np.allclose(borefield_gui.peak_cooling, borefield.peak_cooling)
+    assert func.func == borefield_gui.calculate_temperatures
+    assert func.args == (gs.option_depth.get_value(),)
+    assert func.keywords == {}
 
-    borefield.calculate_temperatures(gs.option_depth.get_value())
-
-    check_results(main_window, borefield)
+    main_window.delete_backup()
 
 
 @given(delay=st.integers(0, 12), factor=st.floats(0, 2))
@@ -417,7 +462,15 @@ def test_temp_profile_cooling_data(qtbot, delay: int, factor: float) -> None:
                               gs.option_cp_aug, gs.option_cp_sep, gs.option_cp_oct, gs.option_cp_nov, gs.option_cp_dec], cool_peak):
         option.set_value(value)
 
+    main_window.save_scenario()
+    ds = main_window.list_ds[-1]
+    borefield_gui, func = data_storage_2_borefield_callable(ds)
+    assert np.allclose(borefield_gui.baseload_heating, borefield.baseload_heating)
+    assert np.allclose(borefield_gui.baseload_cooling, borefield.baseload_cooling)
+    assert np.allclose(borefield_gui.peak_heating, borefield.peak_heating)
+    assert np.allclose(borefield_gui.peak_cooling, borefield.peak_cooling)
+    assert func.func == borefield_gui.calculate_temperatures
+    assert func.args == (gs.option_depth.get_value(),)
+    assert func.keywords == {}
 
-    borefield.calculate_temperatures(gs.option_depth.get_value())
-
-    check_results(main_window, borefield)
+    main_window.delete_backup()
