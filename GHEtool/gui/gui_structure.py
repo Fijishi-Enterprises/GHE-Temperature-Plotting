@@ -367,7 +367,6 @@ class GuiStructure:
             maximal_value=10000,
             step=0.001,
         )
-        self.option_pipe_borehole_radius.change_event(self.check_distance_between_pipes)
 
         # add dependencies
         self.aim_temp_profile.add_link_2_show(self.option_depth)
@@ -565,6 +564,19 @@ class GuiStructure:
         )
         self.option_pipe_outer_radius.change_event(self.option_pipe_inner_radius.widget.setMaximum)
         self.option_pipe_inner_radius.change_event(self.option_pipe_outer_radius.widget.setMinimum)
+
+        self.option_pipe_borehole_radius_2 = FloatBox(
+            category=self.category_pipe_data,
+            label="Borehole radius [m]: ",
+            default_value=0.075,
+            decimal_number=4,
+            minimal_value=0,
+            maximal_value=10000,
+            step=0.001,
+        )
+        self.option_pipe_borehole_radius_2.change_event(self.check_distance_between_pipes)
+        self.option_pipe_borehole_radius_2.change_event(self.option_pipe_borehole_radius.set_value)
+        self.option_pipe_borehole_radius.change_event(self.option_pipe_borehole_radius_2.set_value)
 
         self.option_pipe_distance = FloatBox(
             category=self.category_pipe_data,

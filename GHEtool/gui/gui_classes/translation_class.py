@@ -169,6 +169,7 @@ class Translations:  # pragma: no cover
         "option_pipe_outer_radius",
         "option_pipe_inner_radius",
         "option_pipe_borehole_radius",
+        "option_pipe_borehole_radius_2",
         "option_pipe_distance",
         "option_pipe_roughness",
         "option_pipe_depth",
@@ -1315,6 +1316,15 @@ class Translations:  # pragma: no cover
             "Inner pipe radius [m]: ",
         ]
         self.option_pipe_borehole_radius: List[str] = [
+            "Borehole radius [m]:",
+            "Bohrlochradius [m]:",
+            "Boorgatstraal [m]:",
+            "Borehole radius [m]:",
+            "Borehole radius [m]:",
+            "Borehole radius [m]:",
+            "Borehole radius [m]:",
+        ]
+        self.option_pipe_borehole_radius_2: List[str] = [
             "Borehole radius [m]:",
             "Bohrlochradius [m]:",
             "Boorgatstraal [m]:",
