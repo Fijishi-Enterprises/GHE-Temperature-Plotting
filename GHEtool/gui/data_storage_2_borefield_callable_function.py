@@ -1,9 +1,13 @@
 from functools import partial
 from typing import Callable, Tuple
 
-from GHEtool import Borefield
 from GHEtool.gui.gui_data_storage import DataStorage
 from GHEtool.gui.gui_structure import load_data_GUI
+from GHEtool import Borefield, FluidData, GroundData, PipeData
+
+import numpy as np
+from numpy.typing import NDArray
+
 
 
 def data_storage_2_borefield_callable(ds: DataStorage) -> Tuple[Borefield, Callable[[], None]]:
@@ -14,15 +18,15 @@ def data_storage_2_borefield_callable(ds: DataStorage) -> Tuple[Borefield, Calla
     # create the bore field object
     borefield = Borefield(
         simulation_period=ds.option_simu_period,
-        borefield=ds.borefield_pygfunction,
         gui=True,
     )
+    _set_boreholes(ds, borefield)
     # set temperature boundaries
     borefield.set_max_ground_temperature(ds.option_max_temp)  # maximum temperature
     borefield.set_min_ground_temperature(ds.option_min_temp)  # minimum temperature
 
     # set ground data
-    borefield.set_ground_parameters(ds.ground_data)
+    borefield.set_ground_parameters(_create_ground_data(ds))
 
     # set peak lengths
     borefield.set_length_peak_cooling(ds.option_len_peak_cooling)
@@ -34,14 +38,15 @@ def data_storage_2_borefield_callable(ds: DataStorage) -> Tuple[Borefield, Calla
     if ds.option_method_rb_calc > 0:
     # Rb will be dynamically calculated
     # set fluid and pipe data
-        borefield.set_fluid_parameters(ds.fluid_data)
-    borefield.set_pipe_parameters(ds.pipe_data)
+        borefield.set_fluid_parameters(_create_fluid_data(ds))
+        borefield.set_pipe_parameters(_create_pipe_data(ds))
 
     # set monthly loads
-    borefield.set_peak_heating(ds.peakHeating)
-    borefield.set_peak_cooling(ds.peakCooling)
-    borefield.set_baseload_heating(ds.monthlyLoadHeating)
-    borefield.set_baseload_cooling(ds.monthlyLoadCooling)
+    peak_heating, peak_cooling, monthly_load_heating, monthly_load_cooling = _create_monthly_loads_peaks(ds)
+    borefield.set_peak_heating(peak_heating)
+    borefield.set_peak_cooling(peak_cooling)
+    borefield.set_baseload_heating(monthly_load_heating)
+    borefield.set_baseload_cooling(monthly_load_cooling)
 
     # set hourly loads if available
     if ds.hourly_data:
@@ -63,7 +68,7 @@ def data_storage_2_borefield_callable(ds: DataStorage) -> Tuple[Borefield, Calla
         borefield.set_hourly_cooling_load(peak_cooling)
 
     # set up the borefield sizing
-    borefield.sizing_setup(H_init=ds.borefield_pygfunction[0].H,
+    borefield.sizing_setup(H_init=borefield.borefield[0].H,
                            use_constant_Rb=ds.option_method_rb_calc == 0,
                            use_constant_Tg=ds.option_method_temp_gradient == 0,
                            L2_sizing=ds.option_method_size_depth == 0,
@@ -98,3 +103,58 @@ def data_storage_2_borefield_callable(ds: DataStorage) -> Tuple[Borefield, Calla
         ### Plot temperature profile
     if ds.aim_temp_profile:
         return borefield, partial(borefield.calculate_temperatures, borefield.H)
+
+
+def _set_boreholes(ds: DataStorage, borefield: Borefield) -> None:
+    """
+    This function creates the dataclasses (PipeData, FluidData and GroundData) based on entered values.
+    These can be used in the calculation thread.
+
+    Returns
+    -------
+    None
+    """
+    borefield.create_rectangular_borefield(ds.option_width, ds.option_length, ds.option_spacing, ds.option_spacing, ds.option_depth, ds.option_pipe_depth,
+                                           ds.option_pipe_borehole_radius)
+
+
+def _create_fluid_data(ds: DataStorage) -> FluidData:
+    return FluidData(ds.option_fluid_mass_flow, ds.option_fluid_conductivity, ds.option_fluid_density, ds.option_fluid_capacity, ds.option_fluid_viscosity)
+
+
+def _create_pipe_data(ds: DataStorage) -> PipeData:
+    return PipeData(ds.option_pipe_grout_conductivity, ds.option_pipe_inner_radius, ds.option_pipe_outer_radius, ds.option_pipe_conductivity,
+                    ds.option_pipe_distance, ds.option_pipe_number, ds.option_pipe_roughness)
+
+
+def _calculate_flux(ds: DataStorage) -> float:
+    """
+    This function calculates the geothermal flux.
+    This is calculated based on:
+
+    temperature gradient [K/100m] * conductivity [W/mK] / 100
+    = temperature gradient [K/m] * conductivity [W/mK]
+
+    Returns
+    -------
+    Geothermal flux : float
+        Geothermal flux in [W/m2]
+    """
+    return ds.option_temp_gradient * ds.option_conductivity / 100
+
+
+def _create_ground_data(ds: DataStorage) -> GroundData:
+    return GroundData(ds.option_conductivity, ds.option_ground_temp if ds.option_method_temp_gradient == 0 else ds.option_ground_temp_gradient,
+                      ds.option_constant_rb, ds.option_heat_capacity * 1000, _calculate_flux(ds))
+
+
+def _create_monthly_loads_peaks(ds: DataStorage) -> Tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]]:
+    peak_heating: NDArray[np.float64] = np.array([ds.option_hp_jan, ds.option_hp_feb, ds.option_hp_mar, ds.option_hp_apr, ds.option_hp_may, ds.option_hp_jun,
+                                                    ds.option_hp_jul, ds.option_hp_aug, ds.option_hp_sep, ds.option_hp_oct, ds.option_hp_nov, ds.option_hp_dec])
+    peak_cooling: NDArray[np.float64] = np.array([ds.option_cp_jan, ds.option_cp_feb, ds.option_cp_mar, ds.option_cp_apr, ds.option_cp_may, ds.option_cp_jun,
+                              ds.option_cp_jul, ds.option_cp_aug, ds.option_cp_sep, ds.option_cp_oct, ds.option_cp_nov, ds.option_cp_dec])
+    monthly_load_heating: NDArray[np.float64] = np.array([ds.option_hl_jan, ds.option_hl_feb, ds.option_hl_mar, ds.option_hl_apr, ds.option_hl_may, ds.option_hl_jun,
+                                     ds.option_hl_jul, ds.option_hl_aug, ds.option_hl_sep, ds.option_hl_oct, ds.option_hl_nov, ds.option_hl_dec])
+    monthly_load_cooling: NDArray[np.float64] = np.array([ds.option_cl_jan, ds.option_cl_feb, ds.option_cl_mar, ds.option_cl_apr, ds.option_cl_may, ds.option_cl_jun,
+                                     ds.option_cl_jul, ds.option_cl_aug, ds.option_cl_sep, ds.option_cl_oct, ds.option_cl_nov, ds.option_cl_dec])
+    return peak_heating, peak_cooling, monthly_load_heating, monthly_load_cooling

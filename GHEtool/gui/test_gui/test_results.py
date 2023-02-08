@@ -8,7 +8,6 @@ import PySide6.QtWidgets as QtW
 from GHEtool.gui.gui_classes.gui_combine_window import MainWindow
 from GHEtool.gui.gui_structure import GuiStructure
 from GHEtool.gui.data_storage_2_borefield_callable_function import data_storage_2_borefield_callable
-from time import sleep
 
 from GHEtool import Borefield, GroundData, FluidData, PipeData
 import numpy as np
