@@ -441,13 +441,13 @@ class Translations:  # pragma: no cover
             "Maximal borehole spacing [m]: ",
         ]
         self.option_max_width: List[str] = [
-            "Maximal width of rectangular field [m]: ",
+            "Maximal width of borefield [m]: ",
             "Maximale Breite des rechteckigen Feldes [m]: ",
             "Maximale breedte van het rechthoekig boorveld [m]: ",
             "Maximal width of rectangular field [m]: ",
+            "Maximal width of borefield [m]: ",
             "Maximal width of rectangular field [m]: ",
-            "Maximal width of rectangular field [m]: ",
-            "Maximal width of rectangular field [m]: ",
+            "Maximal width of rectangular field [m]:",
         ]
         self.option_max_length: List[str] = [
             "Maximal length of rectangular field [m]: ",
@@ -468,22 +468,22 @@ class Translations:  # pragma: no cover
             "Ground volumetric heat capacity [kJ / m³ K]:",
         ]
         self.option_width: List[str] = [
-            "Width of rectangular field [#]: ",
-            "Breite des rechteckigen Feldes [#]: ",
-            "Breedte van het rechthoekige veld [#]: ",
-            "Larghezza del campo rettangolare [#]: ",
-            "Largeur du champ rectangulaire [#]: ",
-            "Ancho del campo rectangular [#]: ",
-            "Ancho do campo rectangular [#]: ",
+            "Width of borefield [#]: ",
+            "Breite des Bohrfeldes [#]: ",
+            "Breedte van het veld [#]: ",
+            "Larghezza del campo [#]: ",
+            "Largeur du champ [#]: ",
+            "Ancho del campo [#]: ",
+            "Ancho do campo [#]:",
         ]
         self.option_length: List[str] = [
-            "Length of rectangular field [#]: ",
-            "Länge des rechteckigen Feldes [#]: ",
-            "Lengte van het rechthoekige veld [#]: ",
-            "Lunghezza del campo rettangolare [#]: ",
-            "Longueur du champ rectangulaire [#]: ",
-            "Longitud del campo rectangular [#]: ",
-            "Lonxitude do campo rectangular [#]: ",
+            "Length of borefield [#]: ",
+            "Länge des Bohrfeldes [#]: ",
+            "Lengte van het veld [#]: ",
+            "Lunghezza del campo [#]: ",
+            "Longueur du champ [#]: ",
+            "Longitud del campo [#]: ",
+            "Lonxitude do campo [#]:",
         ]
         self.category_temperatures: List[str] = [
             "Temperature constraints and simulation period",

@@ -44,13 +44,10 @@ class MainWindow(MainWindow):
         def general_changes(scenarios):
             # change window title to new loaded filename
             self.change_window_title()
-            # replace user window id
-            for DS in self.list_ds:
-                DS.ui = id(self)
-
             # init user window by reset scenario list widget and check for results
             self.list_widget_scenario.clear()
             self.list_widget_scenario.addItems(scenarios)
+            self.change_scenario(0)
             self.list_widget_scenario.setCurrentRow(0)
             self.check_results()
 
@@ -88,10 +85,10 @@ class MainWindow(MainWindow):
                 ds = DataStorage(self.gui_structure)
                 ds.from_dict(val)
                 if borefield is None:
-                    setattr(ds, 'results', None)
+                    ds.results = None
                 else:
-                    setattr(ds, 'results', Borefield())
-                    getattr(ds, 'results').from_dict(borefield)
+                    ds.results = Borefield()
+                    ds.results.from_dict(borefield)
                 self.list_ds.append(ds)
             # set and change the window title
             self.filename = saving['filename']

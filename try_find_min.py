@@ -34,8 +34,7 @@ def size_by_length_and_width(borefield: Borefield, H_max: float, L1: float, L2: 
     # calculate set of possible options
     options = set([])
     for N1 in range(1, N1_max + 1):
-        N2 = N1
-        while N2 <= N2_max:
+        for N2 in range(N1, N2_max + 1):
             # calculate possible spacings
             B = min(max_width / N1, max_length / N2, B_max)
 
@@ -44,10 +43,9 @@ def size_by_length_and_width(borefield: Borefield, H_max: float, L1: float, L2: 
                 # set borefield parameters
                 borefield.create_rectangular_borefield(N1, N2, B, B, H_max, borefield.borefield[0].D, borefield.borefield[0].r_b)
                 borefield.calculate_temperatures(H_max)
-                if max(borefield.results_peak_cooling) < borefield.Tf_max and min(borefield.results_peak_heating) > borefield.Tf_min:
+                if np.max(borefield.results_peak_cooling) <= borefield.Tf_max and np.min(borefield.results_peak_heating) >= borefield.Tf_min:
                     options.add((N1, N2, B))
-
-            N2 += 1
+                    break
 
     # return empty list if options = {}
     if options == set([]):
