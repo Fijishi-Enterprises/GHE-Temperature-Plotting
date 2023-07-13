@@ -206,7 +206,9 @@ class HourlyGeothermalLoad(_LoadData):
 
     def resample_to_monthly(self, hourly_load: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
-        This function resamples an hourly_load to monthly peaks (kW/month) and baseloads (kWh/month).
+        This function resamples a load of an hourly resolution to monthly peaks (kW/month) and baseloads (kWh/month).
+        If the hourly load is a multi-year input, then the results are also peak load and baseloads arrays for
+        those multiple years.
 
         Parameters
         ----------
@@ -217,6 +219,7 @@ class HourlyGeothermalLoad(_LoadData):
         -------
         peak loads [kW], monthly average loads [kWh/month] : np.ndarray, np.ndarray
         """
+        hours_series = np.tile(HourlyGeothermalLoad.HOURS_SERIES, self.simulation_period)
         # create dataframe
         df = pd.DataFrame(hourly_load, index=HourlyGeothermalLoad.HOURS_SERIES, columns=['load'])
 
@@ -226,7 +229,6 @@ class HourlyGeothermalLoad(_LoadData):
         # resample
         return np.array(df.resample('M').agg({'load': 'max'})['load']),\
             np.array(df.resample('M').agg({'load': 'sum'})['load'])
-
 
     @property
     def baseload_cooling(self) -> np.ndarray:

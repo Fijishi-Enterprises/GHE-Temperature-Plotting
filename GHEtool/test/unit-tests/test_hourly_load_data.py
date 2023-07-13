@@ -157,3 +157,13 @@ def test_set_hourly_values_multi_year():
         assert False   # pragma: no cover
     except ValueError:
         assert True
+
+
+def test_simulation_period_heating():
+    load = HourlyGeothermalLoadMultiYear()
+    load.hourly_heating_load = np.linspace(0, 8759*2+1, 8760*2)
+    assert load.peak_heating.size == 12
+    assert load.baseload_heating.size == 12
+    assert load.baseload_heating_power.size == 12
+    assert load.baseload_heating_simulation_period.size == 24
+    assert load.baseload_heating_power_simulation_period.size == 24

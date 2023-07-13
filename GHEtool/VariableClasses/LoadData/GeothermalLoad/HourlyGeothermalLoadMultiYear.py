@@ -68,7 +68,7 @@ class HourlyGeothermalLoadMultiYear(HourlyGeothermalLoad):
     @property
     def hourly_heating_load(self) -> np.ndarray:
         """
-        This function returns the hourly heating load in kWh/h.
+        This function returns the average hourly heating load in kWh/h.
 
         Returns
         -------
@@ -103,11 +103,10 @@ class HourlyGeothermalLoadMultiYear(HourlyGeothermalLoad):
             return
         raise ValueError
 
-
     @property
     def hourly_cooling_load(self) -> np.ndarray:
         """
-        This function returns the hourly cooling load in kWh/h.
+        This function returns the average hourly cooling load in kWh/h.
 
         Returns
         -------
@@ -142,7 +141,6 @@ class HourlyGeothermalLoadMultiYear(HourlyGeothermalLoad):
             return
         raise ValueError
 
-
     @property
     def hourly_cooling_load_simulation_period(self) -> np.ndarray:
         """
@@ -158,11 +156,83 @@ class HourlyGeothermalLoadMultiYear(HourlyGeothermalLoad):
     @property
     def hourly_heating_load_simulation_period(self) -> np.ndarray:
         """
-        This function returns the hourly heating in kWh/h for a whole simulation period.
+        This function returns the hourly heating in kWh/h for the multi-year period.
 
         Returns
         -------
         hourly heating : np.ndarray
-            hourly heating for the whole simulation period
+            hourly heating for the multi-year period, so the length is 12 * simulation period
         """
         return self._hourly_heating_load
+
+    @property
+    def baseload_heating_simulation_period(self) -> np.ndarray:
+        """
+        This function returns the baseload heating in kWh/month for the multi-year period.
+
+        Returns
+        -------
+        baseload heating : np.ndarray
+            baseload heating for the multi-year period, so the length is 12 * simulation period
+        """
+        return self.resample_to_monthly(self._hourly_heating_load)[0]
+
+    @property
+    def baseload_cooling_simulation_period(self) -> np.ndarray:
+        """
+        This function returns the baseload cooling in kWh/month for the multi-year period.
+
+        Returns
+        -------
+        baseload cooling : np.ndarray
+            baseload cooling for the multi-year period, so the length is 12 * simulation period
+        """
+        return self.resample_to_monthly(self._hourly_cooling_load)[1]
+
+    @property
+    def peak_heating_simulation_period(self) -> np.ndarray:
+        """
+        This function returns the peak heating in kW/month for the multi-year period.
+
+        Returns
+        -------
+        peak heating : np.ndarray
+            peak heating for the multi-year period, so the length is 12 * simulation period
+        """
+        return self.resample_to_monthly(self._hourly_heating_load)[0]
+
+    @property
+    def peak_cooling_simulation_period(self) -> np.ndarray:
+        """
+        This function returns the peak cooling in kW/month for the multi-year period.
+
+        Returns
+        -------
+        peak cooling : np.ndarray
+            peak cooling for the multi-year period, so the length is 12 * simulation period
+        """
+        return self.resample_to_monthly(self._hourly_cooling_load)[0]
+
+    @property
+    def baseload_heating_power_simulation_period(self) -> np.ndarray:
+        """
+        This function returns the avergae heating power in kW avg/month for the multi-year period.
+
+        Returns
+        -------
+        average heating power : np.ndarray
+            average heating power for the multi-year period, so the length is 12 * simulation period
+        """
+        return np.divide(self.baseload_heating_simulation_period, np.tile(self.UPM, self.simulation_period))
+
+    @property
+    def baseload_cooling_power_simulation_period(self) -> np.ndarray:
+        """
+        This function returns the average cooling power in kW avg/month for the multi-year period.
+
+        Returns
+        -------
+        average cooling power : np.ndarray
+            average cooling for the multi-year period, so the length is 12 * simulation period
+        """
+        return np.divide(self.baseload_cooling_simulation_period, np.tile(self.UPM, self.simulation_period))
