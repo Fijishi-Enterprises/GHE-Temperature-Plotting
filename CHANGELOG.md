@@ -5,8 +5,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [2.2.0] - summer 2023
 
+## Added
+- Extra warning message if one wants to load a GHEtool file that was created with a newer version.
+- Borehole thermal resistance is now visible at the borehole thermal resistance page (issue #51).
+- New class of GroundData: GroundTemperatureGradient added (issue #145).
+
+## Changed
+- GUI was moved to a seperate project: ScenarioGUI.
+- H_init was removed from the sizing functions since it was not used.
+- Rb is now solely handled by the borehole object.
+- load_hourly_profile is moved to the separate load classes (issue #45).
+- Removed 'set_hourly_cooling_load', 'set_hourly_heating_load' from main_class and move it to separate load class (issue #45).
+
 ## Fixed
 - Fixed problem with L2 sizing, when the peak load was the same in all months (issue #146).
+- Small bug in faster g-function calculation solved. When changing the borefield, the previously calculated g-functions where not removed.
+- When using interpolation for the g-functions, the results could vary a little bit based on the previous sizings. By reinstating the H_init parameter, this is solved.
+- Borehole internals do no longer overlap.
 
 
 ## [2.1.2] - 2023-04-28
@@ -26,6 +41,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Remove recalculation option (issue #109).
 - When data is loaded in a two-column format, the button for 'two columns' is set (issue #133).
 - GUI doesn't crash anymore when wrong seperator and decimal points are selected when loading a .csv.
+- One can now use monthly calculations which do not assume equal month length.
+
 
 ### Fixed
 - Sizing doesn't crash when either no heating or cooling load is present (issue #91).
