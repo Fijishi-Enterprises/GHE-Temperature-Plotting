@@ -21,6 +21,9 @@ from GHEtool.VariableClasses.LoadData import _LoadData
 from GHEtool.VariableClasses.PipeData import _PipeData
 from GHEtool.VariableClasses.BaseClass import BaseClass
 from GHEtool.VariableClasses.GroundData._GroundData import _GroundData
+from GHEtool.borefield_configurations.borefield_configuration import BorefieldConfiguration
+from GHEtool.borefield_configurations.rectangular_field import RectangularField
+from GHEtool.borefield_configurations.undefined_borefield import UndefinedBorefield
 from GHEtool.logger.ghe_logger import ghe_logger
 
 
@@ -52,7 +55,7 @@ class Borefield(BaseClass):
                  peak_cooling: np.ndarray | list = None,
                  baseload_heating: np.ndarray | list = None,
                  baseload_cooling: np.ndarray | list = None,
-                 borefield=None,
+                 borefield: BorefieldConfiguration | None=None,
                  custom_gfunction: CustomGFunction = None,
                  gui: bool = False,
                  load: _LoadData = None):
@@ -178,7 +181,7 @@ class Borefield(BaseClass):
         self.cost_investment: list = Borefield.DEFAULT_INVESTMENT
 
         # set a custom borefield
-        self.borefield = borefield
+        self.borefield: BorefieldConfiguration | None = borefield
 
         ghe_logger.main_info("Borefield object has been created.")
 
@@ -212,7 +215,7 @@ class Borefield(BaseClass):
         -------
         None
         """
-        self.number_of_boreholes = len(self.borefield) if self.borefield is not None else 0
+        self.number_of_boreholes = len(self.borefield.li_boreholes) if self.borefield is not None else 0
 
     def set_borefield(self, borefield: list[gt.boreholes.Borehole] = None) -> None:
         """
@@ -230,7 +233,7 @@ class Borefield(BaseClass):
         self.borefield = borefield
 
     def create_rectangular_borefield(self, N_1: int, N_2: int, B_1: int, B_2: int, H: float, D: float = 1,
-                                     r_b: float = 0.075):
+                                     r_b: float = 0.075) -> RectangularField:
         """
         This function creates a rectangular borefield.
         It calls the pygfunction module in the background.
@@ -257,9 +260,8 @@ class Borefield(BaseClass):
         -------
         pygfunction borefield object
         """
-        borefield = gt.boreholes.rectangle_field(N_1, N_2, B_1, B_2, H, D, r_b)
-        self.set_borefield(borefield)
-
+        borefield = RectangularField(N_1, N_2, B_1, B_2, H, D, r_b)
+        self.borefield = borefield
         return borefield
 
     def create_circular_borefield(self, N: int, R: float, H: float, D: float = 1, r_b: float = 0.075):
@@ -289,6 +291,22 @@ class Borefield(BaseClass):
         self.set_borefield(borefield)
         return borefield
 
+    def create_start_config(self) -> tuple:
+        config = self._borefield.create_start_config()
+        self.borefield = self._borefield
+        return config
+
+    def update_config(self, n_min: int) -> list[tuple]:
+        config = self._borefield.update_config(n_min)
+        self.borefield = self._borefield
+        return config
+
+    def check_config(self, config: tuple) -> bool:
+        self._borefield.reset_from_config(config)
+        self.borefield = self._borefield
+        self.calculate_temperatures(self._borefield.depth_max)
+        return np.max(self.results_peak_cooling - self.Tf_max) < 0 and np.min(self.results_peak_heating - self.Tf_min) > 0
+
     @property
     def borefield(self):
         """
@@ -301,7 +319,7 @@ class Borefield(BaseClass):
         return self._borefield
 
     @borefield.setter
-    def borefield(self, borefield: list[gt.boreholes.Borehole] = None) -> None:
+    def borefield(self, borefield: BorefieldConfiguration | list[gt.boreholes.Borehole] | None = None) -> None:
         """
         This function sets the borefield configuration. When no input is given, the borefield variable will be deleted.
 
@@ -317,11 +335,13 @@ class Borefield(BaseClass):
         if borefield is None:
             del self.borefield
             return
-        self._borefield = borefield
+        if isinstance(borefield, list):
+            borefield = UndefinedBorefield(borefield)
+        self._borefield: BorefieldConfiguration = borefield
         self._set_number_of_boreholes()
-        self.D = borefield[0].D
-        self.r_b = borefield[0].r_b
-        self.H = borefield[0].H
+        self.D = borefield.D
+        self.r_b = borefield.r_b
+        self.H = borefield.H
         self.gfunction_calculation_object.remove_previous_data()
 
     @borefield.deleter
@@ -354,11 +374,11 @@ class Borefield(BaseClass):
         """
         H = H if H is not None else self.H
 
-        if self._borefield[0].H == H:
+        if self._borefield.H == H:
             # the borefield is already at the correct depth
             return
 
-        for bor in self._borefield:
+        for bor in self._borefield.li_boreholes:
             bor.H = H
 
     def load_custom_gfunction(self, location: str) -> None:
@@ -1782,7 +1802,7 @@ class Borefield(BaseClass):
             """
             # set the correct depth of the borefield
             self._update_borefield_depth(H=H)
-            return self.gfunction_calculation_object.calculate(time_value, self.borefield, self.ground_data.alpha,
+            return self.gfunction_calculation_object.calculate(time_value, self.borefield.li_boreholes, self.ground_data.alpha,
                                                                interpolate=self._sizing_setup.interpolate_gfunctions)
 
         ## 1 bypass any possible precalculated g-functions
@@ -1828,7 +1848,7 @@ class Borefield(BaseClass):
         """
 
         try:
-            self.borefield[0]
+            self.borefield.li_boreholes[0]
         except TypeError:
             raise ValueError("No borefield is set for which the gfunctions should be calculated")
         try:
@@ -1837,7 +1857,7 @@ class Borefield(BaseClass):
             raise ValueError("No ground data is set for which the gfunctions should be calculated")
 
         self.custom_gfunction = CustomGFunction(time_array, depth_array, options)
-        self.custom_gfunction.create_custom_dataset(self.borefield, self.ground_data.alpha)
+        self.custom_gfunction.create_custom_dataset(self.borefield.li_boreholes, self.ground_data.alpha)
 
     @property
     def Re(self) -> float:
