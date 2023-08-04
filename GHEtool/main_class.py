@@ -232,7 +232,7 @@ class Borefield(BaseClass):
         """
         self.borefield = borefield
 
-    def create_rectangular_borefield(self, N_1: int, N_2: int, B_1: int, B_2: int, H: float, D: float = 1,
+    def create_rectangular_borefield(self, N_1: int, N_2: int, B_1: float, B_2: float, H: float, D: float = 1,
                                      r_b: float = 0.075) -> RectangularField:
         """
         This function creates a rectangular borefield.
@@ -245,9 +245,9 @@ class Borefield(BaseClass):
             Number of boreholes in the x direction
         N_2 : int
             Number of boreholes in the y direction
-        B_1 : int
+        B_1 : float
             Distance between adjacent boreholes in the x direction [m]
-        B_2 : int
+        B_2 : float
             Distance between adjacent boreholes in the y direction [m]
         H : float
             Borehole depth [m]
@@ -291,7 +291,7 @@ class Borefield(BaseClass):
         self.set_borefield(borefield)
         return borefield
 
-    def create_start_config(self) -> tuple:
+    def create_start_config(self) -> list[tuple]:
         config = self._borefield.create_start_config()
         self.borefield = self._borefield
         return config

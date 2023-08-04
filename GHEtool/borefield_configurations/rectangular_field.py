@@ -46,18 +46,22 @@ class RectangularField(BorefieldConfiguration):
     def update_config(self, n_min: int) -> list[tuple[float, int, int, float, float]]:
         configs = []
         n_min_loop = 2 * 2 * int(self.max_width) * int(self.max_length)
-        for n_l in range(2, int(self.max_length) + 1):
+        if n_min > (int(self.max_length) + 2) * (int(self.max_width) + 2):
+            configs = [(self.depth_max, int(self.max_length) + 2, int(self.max_width) + 2, self.max_length / ((int(self.max_length) + 2) - 1),
+                       self.max_width / ((int(self.max_width) + 2) - 1))]
+            self.reset_from_config(configs[0])
+            return configs
+        for n_l in range(2, int(self.max_length) + 2):
             n_w_start = int(n_l / self.max_width)
-            if math.ceil(n_w_start * n_l > n_min) or n_w_start > int(self.max_width):
+            if math.ceil(n_w_start * n_l) > n_min or n_w_start > int(self.max_width):
                 continue
-            for n_w in range(max(int(n_l / self.max_width), 2), int(self.max_width) + 1):
+            for n_w in range(max(int(n_l / self.max_width), 2), int(self.max_width) + 2):
                 if n_w * n_l > n_min_loop or n_w * n_l < n_min:
                     continue
                 if n_w * n_l < n_min_loop:
                     configs = []
                 n_min_loop = n_w * n_l
                 configs.append((self.depth_max, n_l, n_w, self.max_length / (n_l - 1), self.max_width / (n_w - 1)))
-
         self.reset_from_config(configs[0])
         return configs
     

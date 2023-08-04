@@ -11,7 +11,7 @@ class BorefieldConfiguration:
     depth_max: float
 
     @abc.abstractmethod
-    def create_start_config(self) -> tuple:
+    def create_start_config(self) -> list[tuple]:
         """"""
 
     @abc.abstractmethod
