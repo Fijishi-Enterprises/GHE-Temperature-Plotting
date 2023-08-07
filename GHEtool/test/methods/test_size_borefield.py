@@ -42,8 +42,8 @@ def test_borefield_sizing_raise_error():
 
     borefield.set_ground_parameters(data)
     rect_field = borefield.create_rectangular_borefield(10, 12, 6, 6, 100, 4, 0.075)
-    rect_field.max_length = 5
-    rect_field.max_width = 5
+    rect_field.max_length_x = 5
+    rect_field.max_length_y = 5
     rect_field.depth_max = 95
 
     borefield.Rb = 0.12  # equivalent borehole resistance (K/W)
@@ -84,15 +84,21 @@ def test_borefield_sizing_method_rectangular():
     # create the borefield object
     borefield = Borefield(load=load)
 
-    # one can activate or deactive the logger, by default it is deactivated
+    # one can activate or deactivate the logger, by default it is deactivated
     # borefield.activate_logger()
     # borefield.deactivate_logger()
 
     borefield.set_ground_parameters(data)
     rect_field = borefield.create_rectangular_borefield(10, 12, 6, 6, 100, 4, 0.075)
-    rect_field.max_length = 30
-    rect_field.max_width = 20
+    rect_field.max_length_x = 30.1
+    rect_field.max_length_y = 20.4
     rect_field.depth_max = 95
+    rect_field.min_distance = 2
+    n_max = int(rect_field.max_length_x / rect_field.min_distance + 1) * int(rect_field.max_length_y / rect_field.min_distance + 1)
+    max_config = rect_field.update_config(n_max)
+    assert max_config[0][1] == int(rect_field.max_length_x / rect_field.min_distance + 1)
+    assert max_config[0][2] == int(rect_field.max_length_y / rect_field.min_distance + 1)
+    assert len(rect_field.li_boreholes) == n_max
 
     borefield.Rb = 0.12  # equivalent borehole resistance (K/W)
 
@@ -118,7 +124,13 @@ def test_borefield_sizing_method_rectangular():
             if np.max(borefield.results_peak_cooling) <= borefield.Tf_max and np.min(borefield.results_peak_heating)>= borefield.Tf_min:
                 n_min_manual = (n_1 * n_2, n_1, n_2, rect_field.max_length / (n_1 - 1), rect_field.max_width / (n_2 - 1))
     pd.DataFrame(li).to_csv("test.csv")#"""
-    assert min_number == 128
+    assert min_number == 126
+    for config in configs:
+        assert config[3] >= rect_field.min_distance
+        assert config[4] >= rect_field.min_distance
+
+        assert np.isclose((config[1] - 1) * config[3], rect_field.max_length_x)
+        assert np.isclose((config[2] - 1) * config[4], rect_field.max_length_y)
 
     configs = size_borefield(borefield, check_configs=True)
     assert borefield.number_of_boreholes == configs[0][1] * configs[0][2]
@@ -159,10 +171,16 @@ def test_borefield_sizing_method_box():
     # borefield.deactivate_logger()
 
     borefield.set_ground_parameters(data)
-    rect_field = borefield.create_box_borefield(10, 12, 6, 6, 100, 4, 0.075)
-    rect_field.max_length = 50
-    rect_field.max_width = 40
-    rect_field.depth_max = 95
+    box_field = borefield.create_box_borefield(10, 12, 6, 6, 100, 4, 0.075)
+    box_field.max_length_x = 50
+    box_field.max_length_y = 40
+    box_field.depth_max = 95
+    box_field.min_distance = 2.0
+    n_max = 2 * int(box_field.max_length_x / box_field.min_distance + 1) + 2 * int(box_field.max_length_y / box_field.min_distance + 1) - 4
+    max_config = box_field.update_config(n_max)
+    assert max_config[0][1] == int(box_field.max_length_x / box_field.min_distance + 1)
+    assert max_config[0][2] == int(box_field.max_length_y / box_field.min_distance + 1)
+    assert len(box_field.li_boreholes) == n_max
 
     borefield.Rb = 0.12  # equivalent borehole resistance (K/W)
 
@@ -189,6 +207,12 @@ def test_borefield_sizing_method_box():
     pd.DataFrame(li).to_csv("test.csv")
     print(n_min_manual)#"""
     assert min_number == 88
+    for config in configs:
+        assert config[3] >= box_field.min_distance
+        assert config[4] >= box_field.min_distance
+
+        assert np.isclose((config[1] - 1) * config[3], box_field.max_length_x)
+        assert np.isclose((config[2] - 1) * config[4], box_field.max_length_y)
 
     configs = size_borefield(borefield, check_configs=True)
     assert borefield.number_of_boreholes == configs[0][1] * 2 + 2 * (configs[0][2] - 2)
@@ -229,10 +253,16 @@ def test_borefield_sizing_method_l():
     # borefield.deactivate_logger()
 
     borefield.set_ground_parameters(data)
-    rect_field = borefield.create_L_shaped_borefield(10, 12, 6, 6, 100, 4, 0.075)
-    rect_field.max_length = 50
-    rect_field.max_width = 60
-    rect_field.depth_max = 150
+    l_field = borefield.create_L_shaped_borefield(10, 12, 6, 6, 100, 4, 0.075)
+    l_field.max_length_x = 50
+    l_field.max_length_y = 60
+    l_field.depth_max = 150
+    l_field.min_distance = 2.0
+    n_max = int(l_field.max_length_x / l_field.min_distance + 1) + int(l_field.max_length_y / l_field.min_distance + 1) - 1
+    max_config = l_field.update_config(n_max)
+    assert max_config[0][1] == int(l_field.max_length_x / l_field.min_distance + 1)
+    assert max_config[0][2] == int(l_field.max_length_y / l_field.min_distance + 1)
+    assert len(l_field.li_boreholes) == n_max
 
     borefield.Rb = 0.12  # equivalent borehole resistance (K/W)
 
@@ -258,6 +288,12 @@ def test_borefield_sizing_method_l():
     pd.DataFrame(li).to_csv("test.csv")
     print(n_min_manual)#"""
     assert borefield.number_of_boreholes == 56
+    for config in configs:
+        assert config[3] >= l_field.min_distance
+        assert config[4] >= l_field.min_distance
+
+        assert np.isclose((config[1] - 1) * config[3], l_field.max_length_x)
+        assert np.isclose((config[2] - 1) * config[4], l_field.max_length_y)
 
     configs = size_borefield(borefield, check_configs=True)
     assert borefield.number_of_boreholes == configs[0][1] + configs[0][2] - 1
@@ -297,10 +333,16 @@ def test_borefield_sizing_method_u():
     # borefield.deactivate_logger()
 
     borefield.set_ground_parameters(data)
-    rect_field = borefield.create_U_shaped_borefield(10, 12, 6, 6, 100, 4, 0.075)
-    rect_field.max_length = 50
-    rect_field.max_width = 60
-    rect_field.depth_max = 150
+    u_field = borefield.create_U_shaped_borefield(10, 12, 6, 6, 100, 4, 0.075)
+    u_field.max_length = 50
+    u_field.max_width = 60
+    u_field.depth_max = 150
+    u_field.min_distance = 5.
+    n_max = int(u_field.max_length_x / u_field.min_distance + 1) + 2*int(u_field.max_length_y / u_field.min_distance + 1) - 2
+    max_config = u_field.update_config(n_max)
+    assert max_config[0][1] == int(u_field.max_length_x / u_field.min_distance + 1)
+    assert max_config[0][2] == int(u_field.max_length_y / u_field.min_distance + 1)
+    assert len(u_field.li_boreholes) == n_max
 
     borefield.Rb = 0.12  # equivalent borehole resistance (K/W)
 
@@ -327,6 +369,12 @@ def test_borefield_sizing_method_u():
     pd.DataFrame(li).to_csv("test.csv")
     print(n_min_manual)  # """
     assert min_number == 55
+    for config in configs:
+        assert config[3] >= u_field.min_distance
+        assert config[4] >= u_field.min_distance
+
+        assert np.isclose((config[1] - 1) * config[3], u_field.max_length_x)
+        assert np.isclose((config[2] - 1) * config[4], u_field.max_length_y)
 
     configs = size_borefield(borefield, check_configs=True)
     assert borefield.number_of_boreholes == configs[0][1] - 2 + 2 * configs[0][2]
@@ -370,6 +418,11 @@ def test_borefield_sizing_method_circle():
     circle_field = borefield.create_circular_borefield(10, 12, 100, 4, 0.075)
     circle_field.max_radius_center_2_boreholes = 50
     circle_field.depth_max = 150
+
+    n_max = int(4*math.pi * circle_field.max_radius_center_2_boreholes / circle_field.min_distance)
+    max_config = circle_field.update_config(n_max)
+    assert max_config[0][1] == n_max
+    assert len(circle_field.li_boreholes) == n_max
 
     borefield.Rb = 0.12  # equivalent borehole resistance (K/W)
 
