@@ -1721,7 +1721,7 @@ class GUI(GuiStructure):
                 coordinates = [((x - dist_x / 2 - r_bore / 2) * scale, (y - dist_y /2 - r_bore / 2) * scale) for x, y in coordinates]
 
             for x, y in coordinates:
-                circle = QtW.QGraphicsEllipseItem(x, y, r_bore * scale, r_bore * scale)
+                circle = QtW.QGraphicsRectItem(x, y, r_bore * scale, r_bore * scale)
                 circle.setPen(QtG.QPen(white_color, 0))
                 circle.setBrush(white_color)
                 scene.addItem(circle)

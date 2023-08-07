@@ -49,7 +49,24 @@ def main():
     # set temperature boundaries
     borefield.set_max_ground_temperature(16)  # maximum temperature
     borefield.set_min_ground_temperature(0)  # minimum temperature
-
+    """
+    configs = size_borefield(borefield)
+    print("The possible configurations are:")
+    for config in configs:
+        print(f"depth: {config[0]}, boreholes length: {config[1]}, boreholes width: {config[2]}, spacing length {config[3]}, spacing width {config[4]}")
+    configs = size_borefield(borefield, check_configs=True)
+    print("The possible configurations which fits the demand are:")
+    for config in configs:
+        print(f"depth: {config[0]}, boreholes length: {config[1]}, boreholes width: {config[2]}, spacing length {config[3]}, spacing width {config[4]}")"""
+    # borefield.calculate_temperatures(rect_field.depth_max)
+    # borefield.print_temperature_profile()
+    """
+    box_field = borefield.create_box_borefield(16, 8, 30 / 15, 20 / 7, 95, 4, 0.075)
+    # borefield.calculate_temperatures(95)
+    # borefield.print_temperature_profile()
+    box_field.max_length = 40
+    box_field.max_width = 50
+    box_field.depth_max = 95
     configs = size_borefield(borefield)
     print("The possible configurations are:")
     for config in configs:
@@ -58,8 +75,39 @@ def main():
     print("The possible configurations which fits the demand are:")
     for config in configs:
         print(f"depth: {config[0]}, boreholes length: {config[1]}, boreholes width: {config[2]}, spacing length {config[3]}, spacing width {config[4]}")
-    # borefield.calculate_temperatures(rect_field.depth_max)
+    
+    l_field = borefield.create_L_shaped_borefield(16, 8, 30 / 15, 20 / 7, 95, 4, 0.075)
+    # borefield.calculate_temperatures(95)
     # borefield.print_temperature_profile()
+    l_field.max_length = 50
+    l_field.max_width = 60
+    l_field.depth_max = 150
+    configs = size_borefield(borefield)
+    print("The possible configurations which fits the demand are:")
+    for config in configs:
+        print(f"depth: {config[0]}, boreholes length: {config[1]}, boreholes width: {config[2]}, spacing length {config[3]}, spacing width {config[4]}")
+    """
+    """
+    u_field = borefield.create_U_shaped_borefield(16, 8, 30 / 15, 20 / 7, 95, 4, 0.075)
+    # borefield.calculate_temperatures(95)
+    # borefield.print_temperature_profile()
+    u_field.max_length_x = 50
+    u_field.max_length_y = 60
+    u_field.depth_max = 150
+    configs = size_borefield(borefield, check_configs=True)
+    print("The possible configurations which fits the demand are:")
+    for config in configs:
+        print(f"depth: {config[0]}, boreholes length: {config[1]}, boreholes width: {config[2]}, spacing length {config[3]}, spacing width {config[4]}")"""
+
+    circle_field = borefield.create_circular_borefield(16, 9, 95, 4, 0.075)
+    # borefield.calculate_temperatures(95)
+    # borefield.print_temperature_profile()
+    circle_field.max_radius_center_2_boreholes = 50
+    circle_field.depth_max = 150
+    configs = size_borefield(borefield)
+    print("The possible configurations which fits the demand are:")
+    for config in configs:
+        print(f"depth: {config[0]}, number boreholes: {config[1]}")
 
 
 if __name__ == "__main__":  # pragma: no cover

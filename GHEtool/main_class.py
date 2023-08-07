@@ -21,7 +21,11 @@ from GHEtool.VariableClasses.LoadData import _LoadData
 from GHEtool.VariableClasses.PipeData import _PipeData
 from GHEtool.VariableClasses.BaseClass import BaseClass
 from GHEtool.VariableClasses.GroundData._GroundData import _GroundData
+from GHEtool.borefield_configurations.CircleField import CircleField
+from GHEtool.borefield_configurations.L_field import LField
+from GHEtool.borefield_configurations.U_field import UField
 from GHEtool.borefield_configurations.borefield_configuration import BorefieldConfiguration
+from GHEtool.borefield_configurations.box_field import BoxField
 from GHEtool.borefield_configurations.rectangular_field import RectangularField
 from GHEtool.borefield_configurations.undefined_borefield import UndefinedBorefield
 from GHEtool.logger.ghe_logger import ghe_logger
@@ -264,18 +268,23 @@ class Borefield(BaseClass):
         self.borefield = borefield
         return borefield
 
-    def create_circular_borefield(self, N: int, R: float, H: float, D: float = 1, r_b: float = 0.075):
+    def create_box_borefield(self, N_1: int, N_2: int, B_1: float, B_2: float, H: float, D: float = 1,
+                                     r_b: float = 0.075) -> BoxField:
         """
-        This function creates a circular borefield.
+        This function creates a box shaped borefield.
         It calls the pygfunction module in the background.
         The documentation of this function is based on pygfunction.
 
         Parameters
         ----------
-        N : int
-            Number of boreholes in the borefield
-        R : float
-            Distance of boreholes from the center of the field
+        N_1 : int
+            Number of boreholes in the x direction
+        N_2 : int
+            Number of boreholes in the y direction
+        B_1 : float
+            Distance between adjacent boreholes in the x direction [m]
+        B_2 : float
+            Distance between adjacent boreholes in the y direction [m]
         H : float
             Borehole depth [m]
         D : float
@@ -287,7 +296,105 @@ class Borefield(BaseClass):
         -------
         pygfunction borefield object
         """
-        borefield = gt.boreholes.circle_field(N, R, H, D, r_b)
+        borefield = BoxField(N_1, N_2, B_1, B_2, H, D, r_b)
+        self.borefield = borefield
+        return borefield
+
+    def create_L_shaped_borefield(self, N_1: int, N_2: int, B_1: float, B_2: float, H: float, D: float = 1,
+                                     r_b: float = 0.075) -> LField:
+        """
+        This function creates a L shaped borefield.
+        It calls the pygfunction module in the background.
+        The documentation of this function is based on pygfunction.
+
+        Parameters
+        ----------
+        N_1 : int
+            Number of boreholes in the x direction
+        N_2 : int
+            Number of boreholes in the y direction
+        B_1 : float
+            Distance between adjacent boreholes in the x direction [m]
+        B_2 : float
+            Distance between adjacent boreholes in the y direction [m]
+        H : float
+            Borehole depth [m]
+        D : float
+            Borehole buried depth [m]
+        r_b : float
+            Borehole radius [m]
+
+        Returns
+        -------
+        pygfunction borefield object
+        """
+        borefield = LField(N_1, N_2, B_1, B_2, H, D, r_b)
+        self.borefield = borefield
+        return borefield
+
+    def create_U_shaped_borefield(self, N_1: int, N_2: int, B_1: float, B_2: float, H: float, D: float = 1,
+                                     r_b: float = 0.075) -> UField:
+        """
+        This function creates a U shaped borefield.
+        It calls the pygfunction module in the background.
+        The documentation of this function is based on pygfunction.
+
+        x-> y^
+        o    o
+        o    o
+        o    o
+        oooooo
+        -> N_1 = 6, N_2 =4
+
+        Parameters
+        ----------
+        N_1 : int
+            Number of boreholes in the x direction
+        N_2 : int
+            Number of boreholes in the y direction
+        B_1 : float
+            Distance between adjacent boreholes in the x direction [m]
+        B_2 : float
+            Distance between adjacent boreholes in the y direction [m]
+        H : float
+            Borehole depth [m]
+        D : float
+            Borehole buried depth [m]
+        r_b : float
+            Borehole radius [m]
+
+        Returns
+        -------
+            UField
+        """
+        borefield = UField(N_1, N_2, B_1, B_2, H, D, r_b)
+        self.borefield = borefield
+        return borefield
+
+    def create_circular_borefield(self, N: int, radius_center_2_boreholes: float, H: float, D: float = 1, r_b: float = 0.075) -> CircleField:
+        """
+        This function creates a circular borefield.
+        It calls the pygfunction module in the background.
+        The documentation of this function is based on pygfunction.
+
+        Parameters
+        ----------
+        N : int
+            Number of boreholes in the borefield
+        radius_center_2_boreholes : float
+            radius form center to boreholes
+        H : float
+            Borehole depth [m]
+        D : float
+            Borehole buried depth [m]
+        r_b : float
+            Borehole radius [m]
+
+        Returns
+        -------
+            CircleField
+        """
+        borefield = CircleField(N, radius_center_2_boreholes, H, D, r_b)
         self.set_borefield(borefield)
         return borefield
 
