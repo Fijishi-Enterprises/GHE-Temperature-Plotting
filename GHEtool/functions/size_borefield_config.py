@@ -19,8 +19,9 @@ def size_borefield(borefield: Borefield, *, check_configs: bool = False) -> list
     h_heat = (np.min(borefield.results_peak_heating) - borefield._Tg()) / (borefield.Tf_min - borefield._Tg()) * max_depth * borefield.number_of_boreholes
     if max(h_cool, h_heat) <= max_depth:
         return best_config[0]
-    n = math.ceil(max(h_cool, h_heat) / max_depth)
-    config = borefield.update_config(n)
+    n = round(max(h_cool, h_heat) / max_depth, 2)
+    n_ceil = math.ceil(n)
+    config = borefield.update_config(n_ceil)
     borefield.calculate_temperatures(max_depth)
     h_cool = (np.max(borefield.results_peak_cooling) - borefield._Tg()) / (borefield.Tf_max - borefield._Tg()) * max_depth * borefield.number_of_boreholes
     h_heat = (np.min(borefield.results_peak_heating) - borefield._Tg()) / (borefield.Tf_min - borefield._Tg()) * max_depth * borefield.number_of_boreholes
@@ -33,13 +34,14 @@ def size_borefield(borefield: Borefield, *, check_configs: bool = False) -> list
     while n not in numbers:
         n_old = n
         numbers.append(n)
-        n = math.ceil(max(h_cool, h_heat) / max_depth * 0.73214 + n_old * (1 - 0.73214))
-        config = borefield.update_config(n)
+        n = round(max(h_cool, h_heat) / max_depth * 0.73214 + n_old * (1 - 0.73214), 2)
+        n_ceil = math.ceil(n)
+        config = borefield.update_config(n_ceil)
         # logging.info(n, borefield.number_of_boreholes, n_old, config)
-        diff = borefield.number_of_boreholes - n
+        diff = borefield.number_of_boreholes - n_ceil
         if diff > 0:
             del borefield.borefield.li_boreholes[-diff:]
-            borefield.number_of_boreholes = n
+            borefield.number_of_boreholes = n_ceil
         borefield.calculate_temperatures(max_depth)
         h_cool = (np.max(borefield.results_peak_cooling) - borefield._Tg()) / (borefield.Tf_max - borefield._Tg()) * max_depth * borefield.number_of_boreholes
         h_heat = (np.min(borefield.results_peak_heating) - borefield._Tg()) / (borefield.Tf_min - borefield._Tg()) * max_depth * borefield.number_of_boreholes
