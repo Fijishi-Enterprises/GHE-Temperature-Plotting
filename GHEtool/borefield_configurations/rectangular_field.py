@@ -62,6 +62,7 @@ class RectangularField(BorefieldConfiguration):
                     configs = []
                 n_min_loop = n_w * n_l
                 configs.append((self.depth_max, n_l, n_w, self.max_length / (n_l - 1), self.max_width / (n_w - 1)))
+        configs = sorted(configs, key=lambda x: abs(x[3] - x[4]))
         self.reset_from_config(configs[0])
         return configs
     

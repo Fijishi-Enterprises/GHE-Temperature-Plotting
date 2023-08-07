@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from pytest import raises
 
 from GHEtool import Borefield, GroundConstantTemperature, MonthlyGeothermalLoadAbsolute
@@ -101,15 +102,18 @@ def test_borefield_sizing_method_rectangular():
 
     """
     n_min_manual = (999,99,99)
+    li = []
     for n_1 in range(2, rect_field.max_length + 2):
         for n_2 in range(2, rect_field.max_width + 2):
-            if n_min_manual[0] <= n_1 * n_2:
-                continue
+            #if n_min_manual[0] <= n_1 * n_2:
+            #    continue
             borefield.create_rectangular_borefield(n_1, n_2, rect_field.max_length / (n_1 - 1), rect_field.max_width / (n_2 - 1), rect_field.depth_max, 4,
                                                    0.075)
             borefield.calculate_temperatures(rect_field.depth_max)
+            li.append((n_1*n_2, np.max(borefield.results_peak_cooling) - borefield.Tf_max, np.min(borefield.results_peak_heating)- borefield.Tf_min))
             if np.max(borefield.results_peak_cooling) <= borefield.Tf_max and np.min(borefield.results_peak_heating)>= borefield.Tf_min:
-                n_min_manual = (n_1 * n_2, n_1, n_2, rect_field.max_length / (n_1 - 1), rect_field.max_width / (n_2 - 1))"""
+                n_min_manual = (n_1 * n_2, n_1, n_2, rect_field.max_length / (n_1 - 1), rect_field.max_width / (n_2 - 1))
+    pd.DataFrame(li).to_csv("test.csv")#"""
     assert min_number == 126
 
 

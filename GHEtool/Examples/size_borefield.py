@@ -40,8 +40,8 @@ def main():
     rect_field = borefield.create_rectangular_borefield(16, 8, 30 / 15, 20 / 7, 95, 4, 0.075)
     # borefield.calculate_temperatures(95)
     # borefield.print_temperature_profile()
-    rect_field.max_length = 36
-    rect_field.max_width = 46
+    rect_field.max_length = 30
+    rect_field.max_width = 20
     rect_field.depth_max = 95
 
     borefield.Rb = 0.12  # equivalent borehole resistance (K/W)
