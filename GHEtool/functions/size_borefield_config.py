@@ -26,9 +26,8 @@ def size_borefield(borefield: Borefield, *, check_configs: bool = False) -> list
     borefield.calculate_temperatures(max_depth)
     h_cool = (np.max(borefield.results_peak_cooling) - borefield._Tg()) / (borefield.Tf_max - borefield._Tg()) * max_depth * borefield.number_of_boreholes
     h_heat = (np.min(borefield.results_peak_heating) - borefield._Tg()) / (borefield.Tf_min - borefield._Tg()) * max_depth * borefield.number_of_boreholes
-    configs.append(config)
     if max(h_heat, h_cool) <= max_depth * borefield.number_of_boreholes:
-        best_config = (configs[-1], borefield.number_of_boreholes)
+        best_config = (config, borefield.number_of_boreholes)
 
     numbers = []
 
@@ -49,7 +48,6 @@ def size_borefield(borefield: Borefield, *, check_configs: bool = False) -> list
         borefield.calculate_temperatures(max_depth)
         h_cool = (np.max(borefield.results_peak_cooling) - borefield._Tg()) / (borefield.Tf_max - borefield._Tg()) * max_depth * borefield.number_of_boreholes
         h_heat = (np.min(borefield.results_peak_heating) - borefield._Tg()) / (borefield.Tf_min - borefield._Tg()) * max_depth * borefield.number_of_boreholes
-        configs.append(config)
         if max(h_heat, h_cool) <= max_depth * borefield.number_of_boreholes and borefield.number_of_boreholes < best_config[1]:
             best_config = (config, borefield.number_of_boreholes)
             continue
