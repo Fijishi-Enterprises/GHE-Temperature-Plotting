@@ -8,7 +8,6 @@
 [![Downloads](https://static.pepy.tech/personalized-badge/ghetool?period=week&units=international_system&left_color=black&right_color=orange&left_text=Downloads%20last%20week)](https://pepy.tech/project/ghetool)
 [![Read the Docs](https://readthedocs.org/projects/ghetool/badge/?version=latest)](https://ghetool.readthedocs.io/en/latest/)
 ## What is *GHEtool*?
-<img src="https://raw.githubusercontent.com/wouterpeere/GHEtool/main/docs/sources/gui/_figure/Icon.png" width="110" align="left">
 
 GHEtool is a Python package that contains all the functionalities needed to deal with borefield design. GHEtool has been developed as a joint effort of KU Leuven (The SySi Team), boydens engineering (part of Sweco) and FH Aachen.
 The core of this package is the automated sizing of borefield under different conditions. By making use of combination of just-in-time calculations of thermal ground responses (using [pygfunction](https://github.com/MassimoCimmino/pygfunction)) with
@@ -222,65 +221,3 @@ A full list of functionalities is given below.
 GHEtool offers functionalities of value to all different disciplines working with borefields. The features are available both in the code environment and in the GUI.
 For more information about the functionalities of GHEtool, please visit the documentation on [https://docs.ghetool.eu](https://docs.ghetool.eu).
 
-## License
-
-*GHEtool* is licensed under the terms of the 3-clause BSD-license.
-See [GHEtool license](LICENSE).
-
-## GHEtool Pro
-To further increase the feasibility of geothermal solutions, we have launched our professional version of GHEtool which supports drilling companies, engineering firms, architects, government organizations with automated reporting and online courses …
-With our insightful software they can minimize the environmental and societal impact while maximizing the cost-effective utilization of geothermal projects.
-Visit our website at [https://ghetool.eu](htts://ghetool.eu) to learn more about the synergy between the open-source and commercial version of GHEtool.
-
-## Contact GHEtool
-- Do you want to support GHEtool financially or by contributing to our software?
-- Do you have a great idea for a new feature?
-- Do you have a specific remark/problem?
-
-Please do contact us at [info@ghetool.eu](mailto:info@ghetool.eu).
-
-## Citation
-Please cite GHEtool using the JOSS paper.
-
-Peere, W., Blanke, T.(2022). GHEtool: An open-source tool for borefield sizing in Python. _Journal of Open Source Software, 7_(76), 4406, https://doi.org/10.21105/joss.04406
-
-For more information on how to cite GHEtool, please visit the ReadTheDocs at [https://docs.ghetool.eu](https://docs.ghetool.eu/en/stable/).
-
-## References
-
-### Development of GHEtool
-Peere, W., Hermans, L., Boydens, W., and Helsen, L. (2023). Evaluation of the oversizing and computational speed of different open-source borefield sizing methods. In _Proceedings of International Building Simulation Conference 2023_. Shanghai (Belgium), 4-6 September 2023.
-
-Coninx, M., De Nies, J. (2022). Cost-efficient Cooling of Buildings by means of Borefields with Active and Passive Cooling. Master thesis, Department of Mechanical Engineering, KU Leuven, Belgium.
-
-Peere, W., Blanke, T. (2022). GHEtool: An open-source tool for borefield sizing in Python. _Journal of Open Source Software, 7_(76), 4406, https://doi.org/10.21105/joss.04406
-
-Peere, W., Picard, D., Cupeiro Figueroa, I., Boydens, W., and Helsen, L. (2021). Validated combined first and last year borefield sizing methodology. In _Proceedings of International Building Simulation Conference 2021_. Brugge (Belgium), 1-3 September 2021. https://doi.org/10.26868/25222708.2021.30180
-
-Peere, W. (2020). Methode voor economische optimalisatie van geothermische verwarmings- en koelsystemen. Master thesis, Department of Mechanical Engineering,
-KU Leuven, Belgium.
-
-### Applications/Mentions of GHEtool
-Weynjes, J. (2023). Methode voor het dimensioneren van een geothermisch systeem met regeneratie binnen verschillende ESCO-structuren. Master thesis, Department of Mechanical Engineering, KU Leuven, Belgium.
-
-Hermans, L., Haesen, R., Uytterhoeven, A., Peere, W., Boydens, W., Helsen, L. (2023). Pre-design of collective residential solar districts with seasonal thermal energy storage: Importance of level of detail. _Applied thermal engineering_ 226, Art.No. 120203, 10.1016/j.applthermaleng.2023.120203
-
-Cimmino, M., Cook., J. C. (2022). pygfunction 2.2 : New Features and Improvements in Accuracy and Computational Efficiency. In _Proceedings of IGSHPA Research Track 2022_. Las Vegas (USA), 6-8 December 2022. https://doi.org/10.22488/okstate.22.000015
-
-Verleyen, L., Peere, W., Michiels, E., Boydens, W., Helsen, L. (2022). The beauty of reason and insight: a story about 30 years old borefield equations. _IEA HPT Magazine 40_(3), 36-39, https://doi.org/10.23697/6q4n-3223
-
-Peere, W., Boydens, W., Helsen, L. (2022). GHEtool: een open-sourcetool voor boorvelddimensionering. Presented at the 15e warmtepompsymposium: van uitdaging naar aanpak, Quadrivium, Heverlee, België.
-
-Peere, W., Coninx, M., De Nies, J., Hermans, L., Boydens, W., Helsen, L. (2022). Cost-efficient Cooling of Buildings by means of Borefields with Active and Passive Cooling. Presented at the 15e warmtepompsymposium: van uitdaging naar aanpak, Quadrivium, Heverlee, België.
-
-Peere, W. (2022). Technologieën voor de energietransitie. Presented at the Energietransitie in meergezinswoningen en kantoorgebouwen: uitdagingen!, VUB Brussel Bruxelles - U Residence.
-
-Sharifi., M. (2022). Early-Stage Integrated Design Methods for Hybrid GEOTABS Buildings. PhD thesis, Department of Architecture and Urban Planning, Faculty of Engineering and Architecture, Ghent University.
-
-Coninx, M., De Nies, J. (2022). Cost-efficient Cooling of Buildings by means of Borefields with Active and Passive Cooling. Master thesis, Department of Mechanical Engineering, KU Leuven, Belgium.
-
-Michiels, E. (2022). Dimensionering van meerdere gekoppelde boorvelden op basis van het type vraagprofiel en de verbinding met de gebruikers. Master thesis, Department of Mechanical Engineering, KU Leuven, Belgium.
-
-Vanpoucke, B. (2022). Optimale dimensionering van boorvelden door een variabel massadebiet. Master thesis, Department of Mechanical Engineering, KU Leuven, Belgium.
-
-Haesen R., Hermans L. (2021). Design and Assessment of Low-carbon Residential District Concepts with (Collective) Seasonal Thermal Energy Storage. Master thesis, Departement of Mechanical Engineering, KU Leuven, Belgium.
