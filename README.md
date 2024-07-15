@@ -20,9 +20,6 @@ This can be found on [https://docs.ghetool.eu](https://docs.ghetool.eu).
 #### Graphical user interface
 GHEtool comes with a *graphical user interface (GUI)*. This GUI is built using [ScenarioGUI](https://github.com/tblanke/ScenarioGUI).
 One can download the open-source GUI [here](https://ghetool.eu/wp-content/uploads/setups/GHEtool%20Community_setup_v2_2_0.exe).
-<p align="center">
-<img src="https://raw.githubusercontent.com/wouterpeere/GHEtool/main/docs/sources/gui/_figure/GHEtool.PNG" width="600">
-</p>
 
 ### Development
 GHEtool is in constant development with new methods, enhancements and features added to every new version. Please visit our [project board](https://github.com/users/wouterpeere/projects/2) to check our progress.
